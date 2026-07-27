@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Live — Nexus Jazz Group{% endblock %}
+{% block meta_description %}Upcoming live dates for the Nexus Jazz Group — clubs, festivals, and listening rooms across the Carolinas.{% endblock %}
+
+{% block content %}
+
+<header class="page-head">
+  <div class="container">
+    <div class="ex-header">
+      <p class="ex-kicker">Live</p>
+      <h1 class="ex-title">Where the band plays next</h1>
+      <p class="ex-lede">Every date, every room. If you want the band in yours,
+        <a href="{% url 'booking' %}">start a booking inquiry</a>.</p>
+    </div>
+  </div>
+</header>
+
+<section class="section-x section-x--flush" aria-label="Upcoming events">
+  <div class="container">
+    <ul class="event-rows">
+      {% for event in upcoming_events %}
+      <li class="reveal{% if forloop.counter0 > 0 and forloop.counter0 < 5 %} reveal-d{{ forloop.counter0 }}{% endif %}">
+        <a class="event-row" href="{% url 'event_detail' event.slug %}">
+          <span class="event-row__date">{{ event.date|date:"d" }}<small>{{ event.date|date:"M Y" }}</small></span>
+          <span>
+            <span class="event-row__title">{{ event.title }}</span><br>
+            <span class="event-row__meta">{{ event.location }}{% if event.start_time %} · {{ event.start_time|time:"g:i A" }}{% endif %}{% if event.price %} · ${{ event.price }}{% endif %}</span>
+          </span>
+          <span class="event-row__go">Details →</span>
+        </a>
+      </li>
+      {% empty %}
+      <li>
+        <p class="empty-note">New dates are being confirmed. Follow the group on
+        {% if site_settings.instagram_url %}<a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% else %}Instagram{% endif %}
+        for the first word, or <a href="{% url 'booking' %}">book the band</a> for your own room.</p>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="cta-x">
+  <div class="container">
+    <p class="ex-kicker">Booking</p>
+    <h2>Your stage next?</h2>
+    <p>Clubs, festivals, weddings, private and corporate events — trio to full five-piece.</p>
+    <a class="btn btn--book" href="{% url 'booking' %}">Book the Band</a>
+  </div>
+</section>
+
+{% endblock %}

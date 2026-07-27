@@ -1,0 +1,1642 @@
+/* ============================================================
+   NEXUS JAZZ — signature layer (loads after base.css)
+   Night gallery: the band presented like an exhibition.
+   Every value is a token from theme.css.
+   ============================================================ */
+
+/* Hero intro tempo. ONE beat = the interval between announced lines; every
+   hero-intro transition below is expressed as a fraction of it, so changing
+   the BPM re-times the whole sequence (fades included), not just the cues.
+   The inline script in home.html overwrites this per-BPM (default 38 BPM →
+   60/38 = 1.579s); this value is the no-JS fallback. */
+:root { --beat: 1.579s; }
+
+/* Fold geometry — the two numbers that set how the hero hands off to the about
+   section, kept together because they only make sense as a pair:
+     --hero-peek   how far short of the fold the hero stops (the black strip).
+     --about-crest how much of the about wall title rises INTO that strip, as
+                   the scroll cue. Must stay well under --hero-peek, or the
+                   headline stops reading as a tease and starts looking cut.
+   The about section's top padding is derived: peek − crest. */
+:root {
+  --hero-peek: 5rem;
+  --about-crest: 1.5rem;
+}
+
+/* ---------- Wordmark ---------- */
+.brand-word {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+/* Type is the design: geometric sans runs slightly open everywhere */
+body { letter-spacing: 0.012em; }
+.ex-lede, .wall-caption, .article__body { font-weight: 300; }
+.brand-sub {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-top: var(--space-1);
+}
+
+/* The old wordmark intro loader was replaced by the hero's own
+   "announcer's introduction" light sequence (see .hero-stage below),
+   which now serves as the page-load moment. */
+
+/* ---------- Nav: quiet chrome over the work ----------
+   Transparent over the hero (the photo leads), then it fades in its own ground
+   once the hero is past — scripts.js adds .is-grounded. The ground is a
+   gradient that is MASKED away at the foot instead of ending on a border, so
+   there's no hard line across the page; the blur is on the same masked layer,
+   which is what keeps the transition seamless (a plain backdrop-filter would
+   cut off squarely at the nav's bottom edge). */
+.nav {
+  /* NB: do NOT set `position` here — base.css makes the nav `sticky`, and
+     overriding it to `relative` scrolls the whole bar away. Sticky is already
+     a positioned ancestor, so ::before's inset works as-is. */
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+}
+.nav::before {
+  content: "";
+  position: absolute;
+  /* Extends 2rem BELOW the bar so the fade finishes past the nav's own box —
+     page text then dissolves gradually as it scrolls under, instead of hitting
+     full-strength ground the moment it reaches the bar. */
+  inset: 0 0 -2rem 0;
+  z-index: 0;
+  pointer-events: none;
+  /* A LIFTED ground, not a darker one: at #0A0908 the page is already almost
+     black, so a black band is invisible over dark sections. Surface-2 reads as
+     smoked glass over both the photos and the black. */
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-surface-2) 94%, transparent) 0%,
+    color-mix(in srgb, var(--color-surface-2) 80%, transparent) 58%,
+    color-mix(in srgb, var(--color-surface-2) 0%, transparent) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 100%);
+  opacity: 0;
+  transition: opacity var(--t-slow) var(--ease-out);
+}
+.nav.is-grounded::before { opacity: 1; }
+.nav__inner { position: relative; z-index: 1; }   /* links sit above the ground */
+.nav__inner { height: 76px; }
+.nav__links a {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  border-radius: 0;
+  padding: var(--space-2) var(--space-3);
+}
+.nav__links a:hover {
+  color: var(--color-text);
+  background: transparent;
+}
+.nav__links a.active { color: var(--color-primary); }
+.nav__admin { color: var(--color-primary); }
+@media (max-width: 900px) {
+  .nav__links {
+    top: 76px;
+    background: var(--color-secondary);
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+/* Book CTA — the one brass moment in the chrome */
+.nav__links a.btn--book { color: var(--color-inverse-text); }
+.nav__links a.btn--book:hover { color: var(--color-inverse-text); background: var(--color-primary-dark); }
+.btn--book,
+.btn--book:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-inverse-text);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 0.75em 1.6em;
+  border-radius: var(--radius-sm);
+}
+.btn--book:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+.nav__cta { margin-left: var(--space-3); }
+
+/* Brass buttons carry dark text everywhere (contrast) */
+.btn-primary, .btn--primary, .btn--accent {
+  color: var(--color-inverse-text);
+}
+.btn-primary:hover, .btn--primary:hover, .btn--accent:hover {
+  color: var(--color-inverse-text);
+}
+
+/* ---------- Exhibition headers: index number + kicker + wall title ----- */
+.ex-header { margin-bottom: var(--space-12); }
+.ex-kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 0 0 var(--space-4);
+}
+.ex-kicker::after {
+  content: "";
+  flex: 0 0 3rem;
+  height: 1px;
+  background: var(--color-border);
+}
+.ex-num { color: var(--color-text-light); font-variant-numeric: tabular-nums; }
+.ex-title {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  margin: 0;
+  max-width: 20ch;
+  text-wrap: balance;
+}
+.ex-lede {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  max-width: var(--max-width-prose);
+  margin: var(--space-4) 0 0;
+}
+
+/* ============================================================
+   Hero — "the announcer's introduction", editorial-mosaic build
+   (imported from the Nexus Jazz Home Claude Design, project
+   99bb8987-878d-49db-bfa9-c4411ab2507e; mosaic redesign 2026-07-24,
+   spots removed + light-switch flip 2026-07-25).
+
+   The section is a full-bleed exhibition wall that fills every pixel: a
+   full-height FEATURE portrait (centre) that holds the announcer type,
+   flanked by eight gallery TILES of other scenes. It plays as a theatre:
+   the stage holds BLACK while the announcer names the act one line at a
+   time on the darkness ("Welcome to the viewing of" → "Keenan Harmon" →
+   "and the Nexus Jazz Group"), holds a beat — then the WHOLE stage flips
+   on at once, like a light switch: feature portrait, all eight tiles,
+   house-light wash and chrome (subtitle, buttons, nav, scroll cue) snap
+   to full together. No follow-spots, no stagger — one clean cut to light.
+
+   Driven by a data-phase attribute on :root, set synchronously by the
+   inline script in home.html BEFORE the hero paints (no flash) and
+   advanced by that same script's timers. The DEFAULT — no data-phase
+   attribute at all — is the fully composed "alive" wall, so no-JS,
+   reduced-motion and repeat visits all get the finished hero with nothing
+   hidden. Every phase override below only SUBTRACTS from that composed
+   default, so an interrupted sequence can only ever reveal MORE, never a
+   black screen. The flip is instant because the lit elements carry NO
+   transition (transition: none on the composed default) — subtractivity
+   holds since that default already IS the end state.
+   ============================================================ */
+.hero-stage {
+  position: relative;
+  /* Fill the WHOLE viewport, pulled up under the sticky nav (negative
+     margin equal to nav height) so the hero photo runs edge-to-edge behind
+     the now-transparent nav instead of stopping at its own separate band.
+     Total on-screen footprint (nav + hero) is still exactly 100svh — the
+     nav-height is reclaimed via the negative margin, not added on top —
+     so the CTAs still clear the fold. --nav-h is defined here and reused
+     so the two never drift. */
+  --nav-h: 77px;
+  /* Stops --hero-peek short of the fold (defined at the top of this file with
+     --about-crest) so the about title crests into the gap — a real scroll cue,
+     no arrow or bouncing chevron needed. */
+  height: calc(100svh - var(--hero-peek));
+  margin-top: calc(-1 * var(--nav-h));
+  min-height: 34rem;
+  overflow: hidden;
+  background: var(--color-secondary);
+}
+/* NB: the hero's next sibling is the Replay button, not the section — an
+   adjacent-sibling rule here silently matches nothing. The about section sets
+   its own top padding (see .about), derived from --hero-peek and --about-crest. */
+.hero-stage + .section-x { padding-top: var(--section-y); }
+
+/* ---- the stage picture: ONE full-bleed portrait that fills the whole
+   section. Black until the final announced line, then it FADES up together
+   with "and the Nexus Jazz Group" (phase 3) and stays for the finished hero. */
+.hero-stage__feature {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: var(--color-secondary);
+  opacity: 1; /* composed default = picture up */
+  transition: opacity calc(var(--beat) * 0.85) var(--ease-out); /* fade-up on the last line */
+}
+.hero-stage__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* full-bleed crop of a tall portrait — sit the window high enough that the
+     whole band's faces (standing row + seated Keenan) all clear the top. */
+  object-position: center var(--hero-focal-y, 11%);
+  filter: saturate(1.2) brightness(1.05) contrast(1.03);
+}
+/* legibility scrim over the picture: darkens the centre where the type sits
+   and the top/bottom edges for framing, without flattening the faces. */
+.hero-stage__scrim {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background:
+    radial-gradient(125% 96% at 50% 50%, rgba(6,5,4,0.62) 0%, rgba(6,5,4,0.26) 44%, rgba(6,5,4,0) 76%),
+    linear-gradient(to bottom, rgba(6,5,4,0.52) 0%, rgba(6,5,4,0.12) 28%, rgba(6,5,4,0.12) 60%, rgba(6,5,4,0.62) 100%);
+}
+
+/* ---- follow-spots: luminous white pools that CUT in on each of the two
+   BLACK-STAGE lines (light-switch snap), then fade out as the picture rises
+   on the last line — the picture IS the light on that beat, so no spot lands
+   on the finished frame. They belong to the ANIMATION ONLY (opacity 0 by
+   default). hero-intro.js parks each on its line via --spotN-left/top; the
+   fallbacks below centre them for the no-JS case. */
+.hero-stage__spot {
+  position: absolute;
+  z-index: 3;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  filter: blur(11px);
+  opacity: 0;                              /* finished hero = no circles */
+  /* Governs the fade-OUT, which runs UNDER the picture's fade-up (0.85 beat)
+     and finishes first: the spots must be gone by the time the finished frame
+     lands — a glow hanging over the revealed picture was the defect. Beat-
+     relative so it stays correct at any BPM. */
+  transition: opacity calc(var(--beat) * 0.35) linear;
+}
+.hero-stage__spot--1 {
+  width: 360px; height: 360px; margin: -180px 0 0 -180px;
+  left: var(--spot1-left, 50%); top: var(--spot1-top, 41%);
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.54) 30%, rgba(255,255,255,0.18) 54%, transparent 72%);
+}
+.hero-stage__spot--2 {
+  width: 520px; height: 520px; margin: -260px 0 0 -260px;
+  left: var(--spot2-left, 50%); top: var(--spot2-top, 50%);
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.56) 30%, rgba(255,255,255,0.20) 54%, transparent 72%);
+}
+
+/* ---- the announcer's copy, centred in the stage (the spots land on each
+   line, the picture fades up behind it). */
+.hero-stage__inner {
+  position: absolute;
+  z-index: 6;
+  left: 0; right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 4vw, 3rem);
+  text-align: center;
+}
+.hero-stage__welcome,
+.hero-stage__name,
+.hero-stage__group {
+  transition: opacity calc(var(--beat) * 0.72) var(--ease-out),
+              text-shadow calc(var(--beat) * 0.72) var(--ease-out);
+}
+.hero-stage__welcome {
+  font-family: var(--font-body);
+  /* shrink-wrap + auto-margins keep each announced line centred as its
+     own text box (independent of the column width). */
+  width: fit-content;
+  max-width: 100%;
+  font-size: clamp(0.66rem, 0.55rem + 0.7vw, 0.92rem);
+  font-weight: 400;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+  color: #efe7d6;
+  margin: 0 auto clamp(0.7rem, 1.5vh, 1.1rem);
+  /* Dark drop only — the earlier white-glow halo (a soft gradient bloom
+     around the letters) is gone so the type reads crisp; the dark shadow
+     is what keeps it legible over the bright spotlight core and photo. */
+  text-shadow: 0 2px 22px rgba(0,0,0,0.72);
+}
+.hero-stage__title { margin: 0; font-weight: 400; }
+.hero-stage__name {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  /* Sized to hold "Keenan Harmon" on ONE line at desktop widths so the
+     block stays short enough to sit below his face; wraps only on narrow
+     phones, where the mobile layout centres it over the portrait anyway. */
+  font-size: clamp(2.4rem, 1rem + 4.4vw, 4.9rem);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  color: #f8f3e7;
+  text-shadow: 0 2px 30px rgba(0,0,0,0.82);
+}
+.hero-stage__group {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: clamp(0.6rem, 1.4vh, 1rem) auto 0;
+  text-shadow: 0 2px 26px rgba(0,0,0,0.78);
+}
+.hero-stage__group-lead {
+  display: block;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(0.95rem, 0.78rem + 0.9vw, 1.45rem);
+  color: #d9d0ba;
+  margin-bottom: 0.2rem;
+}
+.hero-stage__group-name {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 0.8rem + 2.6vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.005em;
+  color: #f8f3e7;
+}
+.hero-stage__lower {
+  /* rises WITH the picture (same duration, no delay) — see the phase block */
+  transition: opacity calc(var(--beat) * 0.85) var(--ease-out);
+  margin-top: clamp(1rem, 2.2vh, 1.6rem);
+}
+.hero-stage__sub {
+  max-width: 38ch;
+  margin: 0 auto;
+  font-size: clamp(0.9rem, 0.82rem + 0.5vw, 1.05rem);
+  font-weight: 300;
+  line-height: 1.7;
+  color: #efe9db;
+  text-shadow: 0 2px 18px rgba(0,0,0,0.7);
+}
+.hero-stage__actions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: clamp(1rem, 2vh, 1.5rem);
+}
+
+/* ---- replay control. */
+.hero-stage__replay {
+  position: fixed;
+  bottom: 1.4rem;
+  right: 1.4rem;
+  z-index: 70;
+  background: color-mix(in srgb, var(--color-secondary) 80%, transparent);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  padding: 0.55rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: opacity calc(var(--beat) * 0.85) var(--ease-out), color .3s, border-color .3s;
+}
+.hero-stage__replay:hover {
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+}
+
+/* =============== PHASE / INTRO ===============
+   No data-phase attribute → the FINISHED hero: picture up, type + chrome in,
+   NO circles. The intro plays only while the inline script sets data-phase.
+
+   Beats (one beat apart, tempo set in BPM — see --beat at the top of this
+   file): 0 black → 1 "Welcome…" (spot 1) → 2 "Keenan Harmon" (spot 2) →
+   3 the WHOLE hero rises together: group line, picture, subtitle, CTAs, nav
+   and replay, while the spots wash out. Phase 3 IS the finished hero — the
+   sequence ends there and NOTHING fades in afterwards.
+
+   The picture / type / chrome rules are SUBTRACTIVE — they only hide what the
+   finished hero shows, so a stalled sequence can reveal more, never a black
+   screen. The follow-spots are the one ADDITIVE layer (absent by default,
+   switched ON only for phases 1–2): if JS never runs there are simply no
+   circles, which IS the finished look — so additivity is safe here. */
+
+/* Picture: black until the last line, then fades up WITH the group name. */
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__feature { opacity: 0; }
+
+/* Announced lines fade in one at a time; the group line lands with the picture. */
+:root[data-phase="0"] .hero-stage__welcome { opacity: 0; }
+:root:is([data-phase="0"], [data-phase="1"]) .hero-stage__name { opacity: 0; }
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__group { opacity: 0; }
+
+/* Follow-spots: cut ON (transition:none) on each line's cue while the stage is
+   BLACK (phases 1–2). At phase 3 the rules drop away, so the default opacity 0
+   + fade takes over and they wash out as the picture rises — the finished frame
+   (and phase 3 onward) carries no glow at all. */
+:root[data-phase="1"] .hero-stage__spot--1,
+:root[data-phase="2"] .hero-stage__spot--1,
+:root[data-phase="2"] .hero-stage__spot--2 { transition: none; }
+:root:is([data-phase="1"], [data-phase="2"]) .hero-stage__spot--1 { opacity: 0.46; }
+:root[data-phase="2"] .hero-stage__spot--2 { opacity: 0.50; }
+
+/* Chrome (subtitle + CTAs, replay, site nav) — held only while the stage is
+   BLACK, then it rises WITH the picture on the last beat: same duration, no
+   delay, so phase 3 lands the complete hero in one move and nothing fades in
+   afterwards (user, 2026-07-26). */
+.nav { transition: opacity calc(var(--beat) * 0.85) var(--ease-out); }
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__lower { opacity: 0; }
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__replay { opacity: 0; pointer-events: none; }
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .nav {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The PAGE BELOW the hero is part of the black stage: whatever shows past the
+   fold (the about section's top edge) is held dark for the whole announcement
+   and arrives on the SAME beat as the picture, nav and CTAs — one reveal, no
+   second event (user, 2026-07-27). Subtractive like every other phase rule, so
+   no-JS / reduced-motion / repeat visits show it composed. */
+.about { transition: opacity calc(var(--beat) * 0.85) var(--ease-out); }
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .about { opacity: 0; }
+/* …and the page ground itself takes the hero's deeper black for the duration,
+   otherwise the strip below the hero shows as a faint seam (--color-bg #0E0D0B
+   against the stage's #0A0908) across an otherwise perfectly black screen. */
+body { transition: background-color calc(var(--beat) * 0.85) var(--ease-out); }
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) body {
+  background-color: var(--color-secondary);
+}
+
+/* ---- Tablet / mobile: same single full-bleed picture with the centred
+   announcer type; a phone viewport is portrait so the tall image crops
+   kindly. Just tighten the measure and lean the scrim on legibility. */
+@media (max-width: 820px) {
+  .hero-stage__inner { max-width: 34rem; }
+  .hero-stage__sub { max-width: 40ch; margin: 0 auto; }
+  .hero-stage__actions { justify-content: center; }
+  .hero-stage__scrim {
+    background:
+      radial-gradient(150% 84% at 50% 50%, rgba(6,5,4,0.6) 0%, rgba(6,5,4,0.3) 46%, rgba(6,5,4,0) 82%),
+      linear-gradient(to bottom, rgba(6,5,4,0.5) 0%, rgba(6,5,4,0.2) 34%, rgba(6,5,4,0.2) 62%, rgba(6,5,4,0.62) 100%);
+  }
+  .hero-stage__spot--2 { width: 420px; height: 420px; margin: -210px 0 0 -210px; }
+}
+@media (max-width: 480px) {
+  .hero-stage__replay { display: none; } /* the CTAs need the room on a phone */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about, body { transition: none; }
+  .hero-stage__img { animation: none; }
+  .hero-stage__replay { display: none; }
+  .hero-stage__welcome,
+  .hero-stage__name,
+  .hero-stage__group,
+  .hero-stage__lower,
+  .hero-stage__feature,
+  .hero-stage__spot,
+  .nav { transition: none; }
+}
+
+/* ---- legacy hero classes retained only where still shared ----
+   .hero-x__reassure is reused by the closing CTA band; .btn--ghost is
+   site-wide. The rest of the old single-photo hero was removed with
+   the announcer rebuild. */
+.hero-x__reassure {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: var(--space-3) 0 0;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.6);
+}
+
+/* Ghost button on dark */
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-text-light);
+  border-radius: var(--radius-sm);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  padding: 0.8em 1.6em;
+}
+.btn--ghost:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  text-decoration: none;
+}
+
+/* ---------- Sections ---------- */
+.section-x { padding-block: var(--section-y); }
+.section-x--hairline { border-top: 1px solid var(--color-border); }
+
+/* ============================================================
+   ABOUT / INFO HUB (#sound) — the band's "about" and the page's
+   signpost to the band, media and news. Two columns: a left copy
+   column (left-aligned, NO italics — the brass emphasis is colour
+   only) and a floating portrait on the right that drifts slowly so
+   the section reads alive rather than static. Replaced the old
+   centred "01 The Sound" wall-text block, 2026-07-26.
+   ============================================================ */
+.about {
+  position: relative;
+  overflow: hidden;                       /* clips the floater's drift */
+  /* Generous below (the section's job is to breathe), measured above: the top
+     padding is peek − crest, so the title rises exactly --about-crest into the
+     black strip left by the hero. Tune the crest at the top of this file — do
+     NOT hardcode a padding here, or the two drift apart. */
+  padding-top: calc(var(--hero-peek) - var(--about-crest));
+  padding-bottom: calc(var(--section-y) * 1.35);
+}
+.about__grid {
+  display: grid;
+  gap: var(--space-16);   /* stacked: the picture needs room off the buttons */
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .about__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.82fr);
+    column-gap: clamp(var(--space-16), 8vw, var(--space-32));
+    row-gap: var(--space-16);
+  }
+  /* The title is a WALL TITLE: its own full-width row above both columns,
+     with a hairline under it. Sitting it inside the copy column made it read
+     as just the first paragraph (user, 2026-07-27). */
+  .about__title { grid-column: 1 / -1; }
+}
+
+/* A short measure is what makes long copy feel calm. */
+.about__copy { max-width: 32rem; }
+.about__title {
+  font-family: var(--font-heading);
+  /* 500 to sit with the hero's "Keenan Harmon" and the site's other display
+     type (.ex-title is 400) — 600 read heavier than anything else on the site */
+  font-weight: 500;
+  /* deliberately close to hero scale — this is the page's second display
+     moment, and it has to out-weigh the body copy by a wide margin */
+  font-size: clamp(2rem, 1.45rem + 2.3vw, 3.35rem);
+  line-height: 1.1;
+  letter-spacing: -0.018em;
+  margin: 0;
+  text-wrap: balance;
+}
+/* Emphasis is COLOUR, never italic — the didone-era italic read dated
+   against the hero's crisp roman type. */
+.about__title-accent { color: var(--color-primary); }
+
+/* Body copy is set in the SERIF (--font-heading, Fraunces) rather than the UI
+   sans: Jost at 300 read thin and drab at paragraph length (user, 2026-07-27).
+   An old-style serif with real contrast is what makes a long editorial passage
+   comfortable — the sans stays for labels, buttons and chrome. Broken into two
+   paragraphs at the sentence break; words are the client's, unchanged. */
+.about__lede {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(0.97rem, 0.92rem + 0.24vw, 1.09rem);
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: 0.002em;
+  color: color-mix(in srgb, var(--color-text) 84%, var(--color-secondary));
+  max-width: 42ch;
+}
+.about__lede + .about__lede { margin-top: var(--space-6); }
+
+.about__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-12);
+}
+/* Section anchor: brass OUTLINE, not brass fill — the filled brass button is
+   reserved site-wide for booking, so this reads as second in the hierarchy. */
+.about__cta {
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  background: transparent;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 0.75em 1.6em;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+}
+.about__cta:hover {
+  background: var(--color-primary);
+  color: var(--color-inverse-text);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+/* ---- the floating portrait. The photo is a warm, bright room shot, so it
+   gets pulled toward the night-gallery ground (desaturated a touch, dimmed,
+   with a black gradient at the foot) and lit back up on hover. A brass
+   hairline sits offset BEHIND the frame — the site's hairline motif with
+   depth. The whole figure drifts on a long, slow loop: the "alive" cue,
+   transform-only, off under prefers-reduced-motion. */
+.about__media {
+  position: relative;
+  margin: 0;
+  justify-self: center;
+  width: min(100%, 25rem);
+}
+/* The drift lives on the INNER frame, never on .about__media: the figure
+   carries .reveal, whose entrance uses `transform`, and a CSS animation on the
+   same property always beats it — the photo would silently lose its reveal.
+   Bonus: the ::before hairline stays anchored while the picture drifts against
+   it, which reads as real depth instead of the whole unit sliding. */
+.about__frame {
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: about-float 11s var(--ease-in-out) infinite alternate;
+}
+/* brass hairline, offset UP-RIGHT behind the picture — up rather than down so
+   it never crosses the caption sitting under the frame */
+.about__media::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) auto var(--space-6);
+  aspect-ratio: 4 / 5;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+  pointer-events: none;
+}
+/* foot gradient: sits the bright wooden floor into the black section */
+.about__frame::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42%;
+  background: linear-gradient(to bottom, rgba(10,9,8,0) 0%, rgba(10,9,8,0.30) 55%, rgba(10,9,8,0.72) 100%);
+  pointer-events: none;
+}
+.about__media img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 24%;   /* keeps all five faces in the crop */
+  filter: saturate(0.86) contrast(1.04) brightness(0.9);
+  transition: filter var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out);
+}
+/* the band "warms up" — and the drift settles — under the pointer */
+.about__media:hover .about__frame { animation-play-state: paused; }
+.about__media:hover img {
+  filter: saturate(1.02) contrast(1.03) brightness(1);
+  transform: scale(1.03);
+}
+.about__media figcaption {
+  position: relative;
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+@keyframes about-float {
+  from { transform: translate3d(0, -9px, 0); }
+  to   { transform: translate3d(0, 9px, 0); }
+}
+
+@media (max-width: 899px) {
+  /* Stacked: the picture takes the column and the offset hairline is dropped —
+     with nothing beside it the frame read as a stray box, not as depth. */
+  .about__media { width: min(100%, 30rem); justify-self: start; }
+  .about__media::before { content: none; }
+  .about__media img { aspect-ratio: 3 / 4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about__frame { animation: none; }
+}
+
+/* Wall text — the statement */
+.wall-text {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: var(--text-2xl);
+  line-height: 1.45;
+  max-width: 30ch;
+  margin: 0;
+  text-wrap: balance;
+}
+.wall-text em { font-style: italic; color: var(--color-primary); }
+.wall-caption {
+  margin-top: var(--space-6);
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  max-width: var(--max-width-prose);
+}
+
+/* Darkens the simplex-noise shader mounted behind this section (see
+   live-shader.js) so its brighter bands read as jewel-tones instead of a
+   blown-out poster the event text has to fight — same job as the hero's
+   own scrim. Inserted by JS right after the canvas; z-index 0 with no
+   z-index on .container means DOM order (scrim before container) decides
+   paint order, so this stays below the actual content. */
+#live-shader-host { position: relative; }
+.live-shader__scrim {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: color-mix(in srgb, var(--color-secondary) 82%, transparent);
+}
+
+/* ---------- Event rows (exhibition list) ---------- */
+.event-rows { list-style: none; margin: 0; padding: 0; }
+.event-row {
+  display: grid;
+  grid-template-columns: 6rem 1fr auto;
+  align-items: baseline;
+  gap: var(--space-6);
+  padding: var(--space-6) 0;
+  border-top: 1px solid var(--color-border);
+  text-decoration: none;
+  transition: background var(--t-fast) var(--ease-out);
+}
+.event-rows li:last-child .event-row { border-bottom: 1px solid var(--color-border); }
+a.event-row:hover { background: var(--color-surface); text-decoration: none; }
+/* Over the shader background (#live-shader-host), an opaque near-black
+   hover fill reads as MORE dark than the vibrant backdrop around it —
+   the opposite of a hover highlight. Lighten instead. */
+#live-shader-host a.event-row:hover {
+  background: color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+.event-row__date {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: var(--text-2xl);
+  color: var(--color-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.event-row__date small {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin-top: var(--space-1);
+}
+.event-row__title {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: var(--text-xl);
+  color: var(--color-text);
+  margin: 0 0 var(--space-1);
+}
+.event-row__meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.event-row__go {
+  /* The arrow glyph's own ink overshoots its layout box (font metrics),
+     and the hover state below translates it another 4px right — without
+     this buffer the arrowhead crosses the row's right edge entirely on
+     hover (visible as a hard cut through the glyph over the shader bg). */
+  padding-right: 0.6em;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  transition: color var(--t-fast), transform var(--t-fast) var(--ease-out);
+}
+a.event-row:hover .event-row__go { color: var(--color-primary); transform: translateX(4px); }
+@media (max-width: 640px) {
+  .event-row { grid-template-columns: 4.5rem 1fr; }
+  .event-row__go { display: none; }
+}
+
+/* ---------- Ivory viewing room (inverse section) ---------- */
+.viewing-room {
+  background: var(--color-inverse-bg);
+  color: var(--color-inverse-text);
+}
+.viewing-room .ex-title,
+.viewing-room .wall-text,
+.viewing-room h2, .viewing-room h3 { color: var(--color-inverse-text); }
+.viewing-room .ex-lede,
+.viewing-room .wall-caption { color: color-mix(in srgb, var(--color-inverse-text) 72%, var(--color-inverse-bg)); }
+.viewing-room .ex-kicker::after { background: color-mix(in srgb, var(--color-inverse-text) 20%, var(--color-inverse-bg)); }
+
+/* ---------- Photography: FULL COLOUR everywhere ----------
+   The grayscale-at-rest / colour-on-hover duotone was removed 2026-07-27 at the
+   user's request — every photo on the site now renders at full colour. The only
+   image treatment left is a slight contrast lift and the hover scale. Do not
+   reintroduce grayscale filters. */
+.duo { overflow: hidden; border-radius: var(--radius-sm); margin: 0; position: relative; }
+.duo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--t-slow) var(--ease-out);
+}
+.duo:hover img, .duo:focus-within img { transform: scale(1.02); }
+
+/* ---------- Gallery grid + lightbox (dark) ---------- */
+.gallery-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+.gallery-item {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  border-radius: var(--radius-sm); overflow: hidden;
+}
+.gallery-item img {
+  height: 17rem; width: 100%; object-fit: cover; display: block;
+  transition: transform var(--t-slow) var(--ease-out);
+}
+.gallery-item:hover img, .gallery-item:focus-visible img { transform: scale(1.03); }
+.gallery-modal {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0;
+  background: var(--color-secondary);
+  max-width: min(92vw, 70rem);
+  box-shadow: var(--shadow-lg);
+}
+.gallery-modal::backdrop { background: color-mix(in srgb, var(--color-secondary) 92%, transparent); }
+.gallery-modal img { max-height: 85vh; width: auto; max-width: 100%; display: block; margin-inline: auto; }
+.modal-close {
+  position: absolute; top: var(--space-2); right: var(--space-2);
+  width: 2.25rem; height: 2.25rem;
+  border-radius: var(--radius-full); border: 1px solid var(--color-border);
+  background: var(--color-surface); color: var(--color-text);
+  cursor: pointer; font-size: var(--text-lg); line-height: 1;
+}
+.modal-close:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.empty-note { color: var(--color-text-light); font-size: var(--text-sm); }
+
+/* ---------- Media embeds ---------- */
+.embed-grid { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
+.embed-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.embed-card iframe { display: block; width: 100%; border: 0; }
+.embed-card--video iframe { aspect-ratio: 16 / 9; height: auto; }
+.embed-card--audio iframe { height: 152px; }
+.embed-card figcaption {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ============================================================
+   THE BAND — roster cards (picture left, bio right)
+   Each player is a CARD: hairline border on the raised surface, picture in a
+   fixed 4/5 frame on the left, bio on the right, everything visible without
+   interaction. Members with more than one picture get a crossfade carousel
+   (.shots) with brass-hairline arrows — same data-carousel-* API as the Miller
+   Piano hero, but MANUAL (no autoplay beside reading copy).
+
+   NOTE: the picture MUST stay inside a fixed aspect frame with object-fit:
+   cover. Letting a 2048px press shot size itself is what made this page look
+   broken once (2026-07-27) — huge full-bleed images with the bio stranded
+   underneath.
+   ============================================================ */
+.roster {
+  display: grid;
+  gap: var(--space-8);
+  margin-top: var(--space-12);
+}
+.player-card {
+  display: grid;
+  gap: var(--space-6);
+  align-items: center;
+}
+@media (min-width: 780px) {
+  .player-card {
+    grid-template-columns: minmax(0, 23rem) minmax(0, 1fr);
+    gap: clamp(var(--space-8), 3vw, var(--space-12));
+  }
+}
+
+/* ---- the picture: always a 4/5 frame, whatever the source file */
+.shots {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-secondary);
+  aspect-ratio: 4 / 5;
+}
+.shots__stage,
+.shots__slide { height: 100%; margin: 0; }
+.shots img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.shots--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.player-card__initial {
+  font-family: var(--font-heading);
+  font-size: var(--text-hero);
+  color: var(--color-text-light);
+  opacity: 0.45;
+  user-select: none;
+}
+
+/* Without JS the slides stack in flow inside the frame (only the first is in
+   view) and the controls stay hidden — nothing points at nothing. JS adds
+   .is-live, which absolutely-positions the slides and shows the controls. */
+.shots__arrow,
+.shots__dots { display: none; }
+.shots.is-live .shots__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--t-slow) var(--ease-out);
+}
+.shots.is-live .shots__slide.is-current { opacity: 1; }
+.shots.is-live .shots__arrow { display: grid; }
+.shots.is-live .shots__dots { display: flex; }
+/* foot scrim so the dots read on a bright photo */
+.shots.is-live::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4.5rem;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(10,9,8,0) 0%, rgba(10,9,8,0.6) 100%);
+}
+
+.shots__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-text) 34%, transparent);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-secondary) 72%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), opacity var(--transition);
+}
+.shots__arrow span { display: block; margin-top: -0.12em; }   /* optical centring */
+.shots__arrow--prev { left: var(--space-3); }
+.shots__arrow--next { right: var(--space-3); }
+.shots__arrow:hover,
+.shots__arrow:focus-visible {
+  opacity: 1;
+  background: color-mix(in srgb, var(--color-secondary) 90%, transparent);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.shots__dots {
+  position: absolute;
+  left: 0; right: 0; bottom: var(--space-4);
+  z-index: 2;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.shots__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-text) 45%, transparent);
+  cursor: pointer;
+  transition: background var(--transition), width var(--transition);
+}
+.shots__dot.is-current { background: var(--color-primary); width: 1.1rem; }
+
+/* ---- the bio */
+.player-card__role {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.player-card__name {
+  margin: var(--space-2) 0 var(--space-5);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+  color: var(--color-text);
+}
+.player-card__bio {
+  margin: 0;
+  font-family: var(--font-heading);   /* the site's editorial reading face */
+  font-size: clamp(0.97rem, 0.92rem + 0.24vw, 1.09rem);
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--color-text) 84%, var(--color-secondary));
+  max-width: 60ch;
+}
+
+@media (max-width: 779px) {
+  /* stacked: cap the picture so it never dominates the card */
+  .shots { max-width: 26rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shots.is-live .shots__slide { transition: none; }
+}
+
+/* ============================================================
+   NEWS POSTER CARDS (.post-cards / .post-card)
+   One component, used by the home "News" section and the news index — the
+   partial is templates/blog/_post_card.html, so the two can never drift.
+
+   The card is a framed poster: cover on top (photo, or a TYPE PLATE when the
+   post has no art — record-sleeve treatment rather than a grey placeholder,
+   because posts without images are the norm for this client), then date,
+   title, teaser and a read affordance. Chrome is hairlines and one brass
+   accent; the lift on hover is the only elevation change.
+   ============================================================ */
+.post-cards {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 620px)  { .post-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .post-cards { grid-template-columns: repeat(3, 1fr); } }
+.post-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+  transition: transform var(--transition-md), border-color var(--transition-md),
+              box-shadow var(--transition-md);
+}
+.post-card:hover,
+.post-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+}
+
+/* ---- cover */
+.post-card__cover {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-secondary);
+}
+.post-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.9) contrast(1.04) brightness(0.92);
+  transition: transform var(--t-slow) var(--ease-out), filter var(--t-slow) var(--ease-out);
+}
+.post-card:hover .post-card__cover img {
+  transform: scale(1.04);
+  filter: saturate(1.02) contrast(1.02) brightness(1);
+}
+/* the hairline frame INSIDE the cover — the site's gallery motif */
+.post-card__wash {
+  position: absolute;
+  inset: var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--color-text) 26%, transparent);
+  pointer-events: none;
+  transition: border-color var(--transition-md);
+}
+.post-card:hover .post-card__wash {
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+.post-card__tag {
+  position: absolute;
+  left: var(--space-6);
+  top: var(--space-6);
+  z-index: 2;
+  padding: 0.35em 0.75em;
+  background: color-mix(in srgb, var(--color-secondary) 76%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 34%, transparent);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+/* ---- the no-photo cover: a Blue Note-ish type plate */
+.post-card__plate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;      /* composed poster, not text stranded at the foot */
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-6);
+  background:
+    radial-gradient(110% 70% at 22% 12%, rgba(194,155,82,0.22) 0%, rgba(194,155,82,0) 60%),
+    linear-gradient(158deg, #1B1712 0%, #0A0908 72%);
+}
+.post-card__plate-label {
+  font-family: var(--font-body);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+.post-card__plate-title {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 1.1rem + 1.3vw, 2.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+  text-wrap: balance;
+}
+.post-card__plate-rule {
+  width: 3.5rem;
+  height: 1px;
+  background: var(--color-primary);
+  transition: width var(--transition-md);
+}
+.post-card:hover .post-card__plate-rule { width: 6rem; }
+
+/* ---- body */
+.post-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-6) var(--space-8);
+}
+.post-card__date {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+.post-card__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: var(--text-xl);
+  line-height: 1.2;
+  color: var(--color-text);
+  text-wrap: balance;
+  transition: color var(--transition);
+}
+.post-card:hover .post-card__title { color: var(--color-primary); }
+.post-card__excerpt {
+  margin: 0;
+  font-family: var(--font-heading);   /* same editorial serif as the about copy */
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  /* three lines of teaser, whatever the copy length — keeps a tidy card grid */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.post-card__more {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.post-card__more span {
+  display: inline-block;
+  transition: transform var(--transition);
+}
+.post-card:hover .post-card__more span { transform: translateX(4px); }
+
+/* On a plate card the TITLE already sits on the cover, so the body heading
+   would repeat it verbatim. Keep the <h3> for structure/screen readers and
+   hide it visually — never delete it, the card would lose its heading. */
+.post-card--plate .post-card__title {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-card,
+  .post-card__cover img,
+  .post-card__plate-rule,
+  .post-card__more span { transition: none; }
+  .post-card:hover { transform: none; }
+  .post-card:hover .post-card__cover img { transform: none; }
+}
+
+/* ============================================================
+   NEWS — RETRO BLUE BAND (home section + the /news/ index page share
+   this theme, so the two can never drift)
+   A deliberate break from the night-gallery black: one loud field in the
+   client's chosen retro blue (#1d2ade) with cream poster cards — the
+   site's one "pop" moment, boxed off by the black either side. Chunky
+   offset shadows (no blur) + zero radius = screen-printed concert-flyer,
+   not soft SaaS card. Photos run in a blue duotone until hover, when they
+   snap to full colour — the site's duotone motif turned into a reveal
+   micro-interaction instead of a static filter.
+   ============================================================ */
+.news-retro {
+  --nr-blue: #1D2ADE;
+  --nr-blue-deep: color-mix(in srgb, var(--nr-blue) 62%, black);
+  --nr-blue-bright: color-mix(in srgb, var(--nr-blue) 68%, white);
+  --nr-cream: #F4ECDC;
+  /* one gap, reused above AND below the heading, so the field always reads
+     as the text sitting centered in its own even box of air. */
+  --nr-head-gap: clamp(2.5rem, 2rem + 2.5vw, 4rem);
+  position: relative;
+  background: radial-gradient(120% 140% at 12% -10%, var(--nr-blue-bright) 0%, var(--nr-blue) 45%, var(--nr-blue-deep) 100%);
+}
+/* less air above the heading than the rest of the site's section rhythm —
+   this band announces itself immediately rather than easing in. Two cases:
+   the home section IS both classes on one element (section-x's own
+   padding-top wins here); the /news/ pages wrap a .page-head child instead,
+   so that child's padding-top is reduced in the same rule below. Never let
+   both apply to the same element — that would stack, not replace. */
+.section-x.news-retro { padding-top: var(--nr-head-gap); }
+.news-retro .page-head { padding-top: var(--nr-head-gap); }
+/* The /news/ list page's page-head is a bare header (kicker+heading only) —
+   its own bottom padding would stack with the heading's margin-bottom right
+   below it (already --nr-head-gap), silently growing the bottom gap by an
+   extra --space-12. Zero it there. (Not applied to the article page's
+   page-head, which wraps the WHOLE article and needs its own bottom air.) */
+.news-retro .page-head:has(+ .section-x--flush) { padding-bottom: 0; }
+
+.news-retro__head { text-align: center; }
+.news-retro__heading {
+  margin: 0 0 var(--nr-head-gap);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: clamp(2.5rem, 1.9rem + 3vw, 4.25rem);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--nr-cream);
+}
+.news-retro__kicker {
+  display: inline-block;
+  margin: 0 0 var(--space-4);
+  padding: 0.3em 0.9em;
+  background: var(--nr-blue-deep);
+  color: var(--nr-cream);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  transform: rotate(-3deg);
+}
+.news-retro .empty-note {
+  color: color-mix(in srgb, var(--nr-cream) 75%, transparent);
+}
+.news-retro__end {
+  margin-top: var(--space-8);
+  font-size: var(--text-sm);
+  color: color-mix(in srgb, var(--nr-cream) 70%, transparent);
+}
+.news-retro__end a {
+  color: var(--nr-cream);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* ---- individual article pages (blog/detail.html), same field + poster-frame
+   language as the cards: cream/blue text swap for the copy that sits
+   directly on the blue (not inside a cream card), and the featured image
+   gets the same chunky frame + duotone-to-colour hover as the cards. */
+.news-retro .article__meta { color: color-mix(in srgb, var(--nr-cream) 65%, transparent); }
+.news-retro .article h1,
+.news-retro .article__standfirst { color: var(--nr-cream); }
+.news-retro .article__body { color: color-mix(in srgb, var(--nr-cream) 88%, transparent); }
+.duo--retro {
+  border: 3px solid var(--nr-cream);
+  border-radius: 0;
+  box-shadow: 8px 8px 0 0 var(--nr-blue-deep);
+  background: var(--nr-blue-deep);
+}
+.duo--retro img {
+  filter: grayscale(1) sepia(1) hue-rotate(175deg) saturate(2.4) brightness(0.95) contrast(1.05);
+  transition: filter var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out);
+}
+.duo--retro:hover img,
+.duo--retro:focus-within img {
+  filter: none;
+  transform: scale(1.03);
+}
+
+.post-cards--retro { position: relative; }
+.post-cards--retro .post-card {
+  --nr-rot: 0deg;
+  background: var(--nr-cream);
+  border: 3px solid var(--nr-blue-deep);
+  border-radius: 0;
+  box-shadow: 8px 8px 0 0 var(--nr-blue-deep);
+  transform: rotate(var(--nr-rot));
+  transition: transform var(--transition-md), box-shadow var(--transition-md), border-color var(--transition-md);
+}
+.post-cards--retro .post-card:nth-child(3n+2) { --nr-rot: -1.25deg; }
+.post-cards--retro .post-card:nth-child(3n) { --nr-rot: 1.25deg; }
+.post-cards--retro .post-card:hover,
+.post-cards--retro .post-card:focus-visible {
+  transform: rotate(0deg) translate(-4px, -6px);
+  box-shadow: 12px 14px 0 0 var(--nr-blue-bright);
+  border-color: var(--nr-blue-bright);
+}
+
+.post-cards--retro .post-card__cover img {
+  filter: grayscale(1) sepia(1) hue-rotate(175deg) saturate(2.4) brightness(0.95) contrast(1.05);
+}
+.post-cards--retro .post-card:hover .post-card__cover img {
+  filter: none;
+  transform: scale(1.06);
+}
+.post-cards--retro .post-card__wash {
+  border-color: color-mix(in srgb, var(--nr-cream) 35%, transparent);
+}
+.post-cards--retro .post-card:hover .post-card__wash {
+  border-color: color-mix(in srgb, var(--nr-cream) 70%, transparent);
+}
+.post-cards--retro .post-card__tag {
+  background: var(--nr-blue-deep);
+  border: none;
+  color: var(--nr-cream);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-weight: 700;
+  transform: rotate(-3deg);
+  transition: transform var(--transition-md), background var(--transition-md);
+}
+.post-cards--retro .post-card:hover .post-card__tag {
+  transform: rotate(0deg);
+  background: var(--nr-blue-bright);
+}
+.post-cards--retro .post-card__date { color: color-mix(in srgb, var(--nr-blue-deep) 60%, transparent); }
+.post-cards--retro .post-card__title { color: var(--nr-blue-deep); }
+.post-cards--retro .post-card:hover .post-card__title { color: var(--nr-blue-bright); }
+.post-cards--retro .post-card__excerpt { color: color-mix(in srgb, var(--nr-blue-deep) 78%, transparent); }
+.post-cards--retro .post-card__more { color: var(--nr-blue-deep); }
+.post-cards--retro .post-card:hover .post-card__more { color: var(--nr-blue-bright); }
+.post-cards--retro .post-card__plate { background: linear-gradient(158deg, var(--nr-blue) 0%, var(--nr-blue-deep) 100%); }
+.post-cards--retro .post-card__plate-label { color: color-mix(in srgb, var(--nr-cream) 70%, transparent); }
+.post-cards--retro .post-card__plate-title { color: var(--nr-cream); }
+.post-cards--retro .post-card__plate-rule { background: var(--nr-cream); }
+
+.btn--retro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  background: var(--nr-cream);
+  color: var(--nr-blue-deep);
+  border: 3px solid var(--nr-blue-deep);
+  border-radius: 0;
+  padding: 0.85em 1.75em;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 6px 6px 0 0 var(--nr-blue-deep);
+  transition: transform var(--transition-md), box-shadow var(--transition-md),
+              background var(--transition-md), color var(--transition-md);
+}
+.btn--retro:hover,
+.btn--retro:focus-visible {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 0 var(--nr-blue-bright);
+  background: var(--nr-blue-bright);
+  color: var(--nr-cream);
+  border-color: var(--nr-blue-bright);
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-cards--retro .post-card,
+  .post-cards--retro .post-card__cover img,
+  .post-cards--retro .post-card__tag,
+  .btn--retro { transition: none; }
+  .post-cards--retro .post-card:hover,
+  .post-cards--retro .post-card:focus-visible { transform: rotate(var(--nr-rot)); }
+  .btn--retro:hover { transform: none; }
+  .duo--retro img { transition: none; }
+  .duo--retro:hover img, .duo--retro:focus-within img { transform: none; }
+}
+
+/* Article body */
+.article {
+  max-width: var(--max-width-prose);
+  margin-inline: auto;
+}
+.article__meta {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin-bottom: var(--space-4);
+}
+.article h1 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: var(--text-3xl);
+  margin: 0 0 var(--space-8);
+  text-wrap: balance;
+}
+/* Standfirst — the card's teaser, repeated as the story's opening promise.
+   Serif, one step up from the body, so the article opens like the card closed. */
+.article__standfirst {
+  margin: var(--space-6) 0 var(--space-8);
+  font-family: var(--font-heading);
+  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text);
+  max-width: 46ch;
+}
+.article__body { color: var(--color-text-muted); font-size: var(--text-lg); }
+.article__body p { margin: 0 0 var(--space-6); }
+.article__figure { margin-bottom: var(--space-8); }
+
+/* ---------- Interior page head ---------- */
+.page-head { padding: var(--space-24) 0 var(--space-12); }
+.page-head .ex-header { margin-bottom: 0; }
+/* Content section directly after a page-head: no double stack */
+.section-x--flush { padding-top: 0; }
+
+/* ---------- Forms on the dark ground ---------- */
+.form-control {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+.form-control::placeholder { color: var(--color-text-light); }
+.form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.form-note { font-size: var(--text-xs); color: var(--color-text-light); }
+label { color: var(--color-text-muted); font-size: var(--text-sm); }
+
+/* ---------- Closing CTA band ---------- */
+.cta-x {
+  border-top: 1px solid var(--color-border);
+  padding-block: var(--section-y);
+  text-align: center;
+}
+.cta-x .ex-kicker { justify-content: center; }
+.cta-x .ex-kicker::after { display: none; }
+.cta-x h2 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: var(--text-3xl);
+  margin: 0 0 var(--space-4);
+  text-wrap: balance;
+}
+.cta-x p {
+  color: var(--color-text-muted);
+  max-width: var(--max-width-prose);
+  margin: 0 auto var(--space-8);
+}
+.cta-x .hero-x__reassure { margin-top: var(--space-6); }
+
+/* ---------- Footer ---------- */
+.footer {
+  background: var(--color-secondary);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-16);
+}
+.footer__grid {
+  display: grid;
+  gap: var(--space-12);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .footer__grid { grid-template-columns: 2fr 1fr; }
+}
+.footer__nav { display: flex; gap: clamp(var(--space-8), 6vw, var(--space-16)); flex-wrap: wrap; }
+.footer__tagline { color: var(--color-text-muted); font-size: var(--text-sm); max-width: 34ch; }
+.footer__place {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+.footer__links { list-style: none; padding: 0; margin: 0; min-width: 0; }
+.footer__links li { margin-bottom: var(--space-3); }
+.footer__links a {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.footer__links a:hover { color: var(--color-primary); }
+.footer__bottom {
+  margin-top: var(--space-16);
+  padding: var(--space-6) 0;
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  color: var(--color-text-light);
+}
+
+/* ---------- FAQ (no-JS accordion, dark) ---------- */
+.faq details { border-bottom: 1px solid var(--color-border); }
+.faq summary {
+  cursor: pointer;
+  padding: var(--space-4) 0;
+  font-weight: 500;
+  color: var(--color-text);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--color-primary); font-size: var(--text-xl); line-height: 1; }
+.faq details[open] summary::after { content: "–"; }
+.faq-a { padding: 0 0 var(--space-4); color: var(--color-text-muted); }
+
+/* ---------- Pending-content plate (empty states with a floor) ---------- */
+.plate {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  padding: var(--space-16) var(--space-8);
+  text-align: center;
+  grid-column: 1 / -1;   /* a pending plate owns the whole wall */
+}
+.plate__glyph {
+  display: block;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: var(--text-3xl);
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: var(--space-4);
+}
+.plate p { color: var(--color-text-muted); max-width: 44ch; margin: 0 auto; }
+
+/* Left-aligned prose column (forms share the page's left edge) */
+.prose-col { max-width: var(--max-width-prose); }
+
+/* ---------- Utilities ---------- */
+.container--prose { max-width: var(--max-width-prose); margin-inline: auto; padding-inline: var(--container-pad); }
+.center { text-align: center; }
+.center .ex-kicker { justify-content: center; }
+.center .ex-title, .center .ex-lede { margin-inline: auto; }
+.mt-8 { margin-top: var(--space-8); }
+.section-foot { margin-top: var(--space-12); }
+.section-foot .btn + .btn { margin-left: var(--space-3); }

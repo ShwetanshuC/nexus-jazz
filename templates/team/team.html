@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}The Band — Nexus Jazz Group{% endblock %}
+{% block meta_description %}Meet the players of the Nexus Jazz Group — Charlotte, NC.{% endblock %}
+
+{% block content %}
+
+<section class="section-x section-x--flush" aria-label="Band members">
+  <div class="container">
+    <div class="roster">
+      {% for member in all_members %}
+      {% with photos=member.gallery_photos %}
+      <article class="player-card reveal">
+        {% comment %}Picture left, bio right. Members with more than one picture
+        get a crossfade carousel with arrows (same data-carousel-* API as the
+        Miller Piano hero); a single picture renders as a plain figure with no
+        controls. Nothing here is clickable — the bio is on the page.{% endcomment %}
+        <div class="player-card__media">
+          {% if photos|length > 1 %}
+          <div class="shots" data-carousel="player-{{ member.pk }}">
+            <div class="shots__stage">
+              {% for photo in photos %}
+              <figure class="shots__slide" data-carousel-slide
+                      {% if not forloop.first %}aria-hidden="true"{% endif %}>
+                <img src="{{ photo.image.url }}" alt="{{ member.name }}"
+                     loading="lazy" decoding="async">
+              </figure>
+              {% endfor %}
+            </div>
+            <button class="shots__arrow shots__arrow--prev" type="button"
+                    data-carousel-prev aria-label="Previous picture of {{ member.name }}">
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button class="shots__arrow shots__arrow--next" type="button"
+                    data-carousel-next aria-label="Next picture of {{ member.name }}">
+              <span aria-hidden="true">›</span>
+            </button>
+            <div class="shots__dots" role="tablist" aria-label="Pictures of {{ member.name }}">
+              {% for photo in photos %}
+              <button class="shots__dot" type="button" data-carousel-dot="{{ forloop.counter0 }}"
+                      aria-label="Picture {{ forloop.counter }} of {{ photos|length }}"></button>
+              {% endfor %}
+            </div>
+          </div>
+          {% elif photos %}
+          {% with photo=photos.0 %}
+          <figure class="shots shots--single">
+            <img src="{{ photo.image.url }}" alt="{{ member.name }}" loading="lazy" decoding="async">
+          </figure>
+          {% endwith %}
+          {% elif member.photo %}
+          <figure class="shots shots--single">
+            <img src="{{ member.photo.url }}" alt="{{ member.name }}"
+                 style="object-position: center {% widthratio member.image_focal_y 1 100 %}%"
+                 loading="lazy" decoding="async">
+          </figure>
+          {% else %}
+          <div class="shots shots--single shots--empty">
+            <span class="player-card__initial" aria-hidden="true">{{ member.name|first }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="player-card__text">
+          <p class="player-card__role">{{ member.role }}</p>
+          <h2 class="player-card__name">{{ member.name }}</h2>
+          {% if member.bio %}<p class="player-card__bio">{{ member.bio }}</p>{% endif %}
+        </div>
+      </article>
+      {% endwith %}
+      {% empty %}
+      <p class="empty-note">Band bios are on their way.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="cta-x">
+  <div class="container">
+    <p class="ex-kicker">Booking</p>
+    <h2>Hear them in person</h2>
+    <p>From a listening room to a festival stage — tell us about your event.</p>
+    <a class="btn btn--book" href="{% url 'booking' %}">Book the Band</a>
+  </div>
+</section>
+
+{% endblock %}

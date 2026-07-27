@@ -1,0 +1,129 @@
+/* ============================================================
+   NEXUS JAZZ — DESIGN TOKENS  (night-gallery: T2 Quiet Luxury, inverted)
+   The band presented like an exhibition: near-black walls, ivory type,
+   one brass accent. Blue Note restraint, Zwirner chrome.
+   Edit the BRAND block only; everything else is the shared spec.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+  /* ---------- BRAND (the ONLY block you edit per client) ---------- */
+  --color-primary:       #C29B52;   /* brass — actions + key emphasis only */
+  --color-primary-dark:  #D6B26A;   /* hover brightens on a dark ground    */
+  --color-primary-light: #231C10;   /* brass wash for tinted dark panels   */
+  --color-secondary:     #0A0908;   /* deepest black — footer/loader       */
+  --color-accent:        var(--color-primary); /* CTA highlight            */
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif; /* warm old-style display — soulful, jazz-fitting (replaced Bodoni Moda 2026-07-24) */
+  --font-body:    'Jost', 'Futura', system-ui, sans-serif; /* geometric — the Blue Note nod */
+  --radius:       0.25rem;          /* gallery = crisp edges               */
+
+  /* ---------- NEUTRALS (warm night axis — ivory on near-black) ----- */
+  --color-bg:         #0E0D0B;
+  --color-surface:    #171511;
+  --color-surface-2:  #1E1B16;
+  --color-border:     #2B2721;      /* hairlines, not shadows */
+  --color-text:       #F2EFE6;
+  --color-text-muted: #AFA795;
+  --color-text-light: #857D6F;
+  --color-inverse-bg:   #F2EFE6;    /* the one ivory "viewing room" section */
+  --color-inverse-text: #14120E;
+
+  /* ---------- SEMANTIC ---------- */
+  --color-success: #15803D;  --color-warning: #B45309;
+  --color-error:   #B91C1C;  --color-info:    #1D4ED8;
+
+  /* ---------- TYPE SCALE (fluid; sizes come ONLY from here) -------- */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   clamp(1.25rem, 1.15rem + 0.5vw,  1.5rem);
+  --text-2xl:  clamp(1.6rem,  1.3rem  + 1.2vw,  2.25rem);  /* h2 */
+  --text-3xl:  clamp(2rem,    1.5rem  + 2vw,    3rem);      /* h1 inner */
+  --text-hero: clamp(2.6rem,  1.7rem  + 4vw,  5.25rem);   /* hero h1 — type IS the design */
+  --leading-tight: 1.15;   /* headings          */
+  --leading-body:  1.7;    /* paragraphs        */
+  --tracking-label: 0.14em; /* uppercase kickers */
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ---------- SPACING (8pt grid) ---------- */
+  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;
+  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;
+  --space-12: 3rem;    --space-16: 4rem;   --space-24: 6rem;  --space-32: 8rem;
+  /* Section rhythm by density code: S1 / S2 / S3 */
+  --section-y-s1: clamp(2.5rem, 2rem + 2vw, 4rem);
+  --section-y-s2: clamp(4rem,   3rem + 4vw, 7rem);
+  --section-y-s3: clamp(5.5rem, 4rem + 6vw, 9rem);
+  --section-y: var(--section-y-s3);        /* S3 — spacious gallery rhythm */
+
+  /* ---------- LAYOUT ---------- */
+  --max-width:       80rem;    /* 1280px shell     */
+  --max-width-prose: 45rem;    /* 45–90ch measure  */
+  --container-pad:   clamp(1.25rem, 4vw, 2.5rem);
+
+  /* ---------- SHAPE ---------- */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-lg: calc(var(--radius) * 1.75);
+  --radius-full: 999px;
+
+  /* ---------- ELEVATION (dark ground: shadows deepen, borders lead) */
+  --shadow-sm: 0 1px 2px  rgba(0,0,0,.4);
+  --shadow:    0 2px 12px rgba(0,0,0,.45);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.5);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,.55);
+
+  /* ---------- MOTION (transform/opacity only) ---------- */
+  --t-fast: 150ms;  --t-base: 240ms;  --t-slow: 400ms;
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---------- FOCUS ---------- */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-primary) 45%, transparent);
+
+  /* ---------- COMPAT (names base.css still uses) ---------- */
+  --text-4xl: var(--text-3xl);
+  --transition: var(--t-fast) var(--ease-out);
+  --transition-md: var(--t-base) var(--ease-out);
+}
+
+/* ---------- BASELINE (ships with tokens; keep) ---------- */
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: var(--leading-body);
+  margin: 0;
+}
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-optical-sizing: auto; /* Fraunces has an optical-size axis (opsz 9–144) — more contrast/flair at display sizes, sturdier for small headings */
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+img, video, svg { max-width: 100%; height: auto; display: block; }
+
+:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+:focus:not(:focus-visible) { outline: none; }
+
+/* Focal-point image contract (set --fy/--fx-m/--fy-m inline from model fields) */
+.focal-img { object-fit: cover; object-position: center var(--fy, 50%); }
+@media (max-width: 640px) {
+  .focal-img { object-position: var(--fx-m, 50%) var(--fy-m, var(--fy, 50%)); }
+}
+
+/* Scroll reveal contract (M2): JS adds .visible via IntersectionObserver, once */
+.reveal { opacity: 0; transform: translateY(24px);
+  transition: opacity var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out); }
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: 80ms; } .reveal-d2 { transition-delay: 160ms; }
+.reveal-d3 { transition-delay: 240ms; } .reveal-d4 { transition-delay: 320ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}

@@ -1,0 +1,511 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_stats %}
+
+{% block title %}Site Manager — Dashboard{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+{% site_stats as stats %}
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap");
+
+  .mt-cms {
+    --mt-font-ui:    "Inter", system-ui, sans-serif;
+    --mt-font-brand: "Cormorant Garamond", Georgia, serif;
+    --mt-accent:     #4f46e5;
+    --mt-accent-dim: rgba(79, 70, 229, 0.16);
+    --mt-bg:         #0b0b0b;
+    --mt-panel:      #131313;
+    --mt-panel-alt:  #191919;
+    --mt-border:     #2c2c2c;
+    --mt-copy:       #b8b8b8;
+    --mt-white:      #f4f4f4;
+    font-family: var(--mt-font-ui);
+    display: grid;
+    gap: 16px;
+  }
+
+  /* ── Stats bar ── */
+  .mt-stats-bar {
+    display: flex;
+    gap: 1px;
+    background: var(--mt-border);
+    border: 1px solid var(--mt-border);
+  }
+  .mt-stat {
+    flex: 1;
+    padding: 18px 20px;
+    background: var(--mt-panel);
+    text-decoration: none !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .mt-stat:hover { background: var(--mt-panel-alt) !important; }
+  .mt-stat-n {
+    font-family: var(--mt-font-brand);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--mt-accent) !important;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .mt-stat-l {
+    font-size: 10px;
+    color: #8f8f8f !important;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── Header ── */
+  .mt-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    background: var(--mt-panel);
+    border: 1px solid var(--mt-border);
+    border-left: 4px solid var(--mt-accent);
+    padding: 22px;
+  }
+  .mt-header h1 {
+    margin: 0;
+    color: var(--mt-white);
+    font-family: var(--mt-font-brand);
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    line-height: 1;
+    font-weight: 600;
+  }
+  .mt-header p {
+    margin: 8px 0 0;
+    color: var(--mt-copy);
+    max-width: 60ch;
+    font-size: 1rem;
+  }
+  .mt-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .mt-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--mt-border);
+    color: var(--mt-white);
+    text-decoration: none;
+    background: #1f1f1f;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    transition: border-color 0.16s, background 0.16s;
+  }
+  .mt-actions a:hover {
+    border-color: rgba(79, 70, 229, 0.7);
+    background: rgba(79, 70, 229, 0.18);
+  }
+
+  /* ── Card grid ── */
+  .mt-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .mt-card {
+    grid-column: span 6;
+    display: grid;
+    gap: 10px;
+    background: var(--mt-panel);
+    color: var(--mt-white);
+    border: 1px solid var(--mt-border);
+    border-left: 4px solid var(--mt-accent);
+    padding: 18px;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .mt-card.mt-card-wide { grid-column: span 12; }
+  .mt-card.mt-card-third { grid-column: span 4; }
+  .mt-card:hover {
+    background: var(--mt-panel-alt);
+    border-color: rgba(79, 70, 229, 0.65);
+  }
+  .mt-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .mt-card-kicker {
+    margin: 0;
+    color: var(--mt-accent);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+  }
+  .mt-card-title {
+    margin: 6px 0 4px;
+    font-family: var(--mt-font-brand);
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--mt-white);
+  }
+  .mt-card-desc {
+    margin: 0;
+    color: var(--mt-copy);
+    line-height: 1.5;
+    font-size: 13px;
+  }
+  .mt-card-count {
+    min-width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1830;
+    border: 1px solid rgba(79, 70, 229, 0.5);
+    color: #d0d0ff;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .mt-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    color: var(--mt-copy);
+    font-size: 0.85rem;
+  }
+  .mt-open-text {
+    color: var(--mt-accent);
+    font-weight: 700;
+  }
+  .mt-drag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: #1f1f1f;
+    border: 1px solid var(--mt-border);
+    cursor: grab;
+    user-select: none;
+    color: #8f8f8f;
+    font-size: 0.9rem;
+  }
+  .mt-card-ghost { opacity: 0.65; }
+
+  /* ── Recent changes ── */
+  .mt-recent {
+    background: var(--mt-panel);
+    border: 1px solid var(--mt-border);
+    border-left: 4px solid var(--mt-accent);
+    padding: 18px;
+  }
+  .mt-recent h2 {
+    margin: 0 0 10px;
+    color: var(--mt-white);
+    font-family: var(--mt-font-brand);
+    font-size: 1.2rem;
+    letter-spacing: 0.02em;
+  }
+  .mt-recent-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .mt-recent-table tr { border-top: 1px solid var(--mt-border); }
+  .mt-recent-table td { padding: 9px 0; }
+  .mt-badge {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 11px;
+    background: #232323;
+    color: #bdbdbd;
+    border: 1px solid var(--mt-border);
+    line-height: 1;
+  }
+  .mt-badge-add    { border-color: rgba(46,139,87,0.6);  color: #4ade80; }
+  .mt-badge-change { border-color: rgba(79,70,229,0.6);  color: #a5b4fc; }
+  .mt-badge-delete { border-color: rgba(220,38,38,0.6);  color: #f87171; }
+  .mt-rt-name { color: var(--mt-white); text-decoration: none; font-weight: 600; }
+  .mt-rt-name:hover { color: #c7d2fe; }
+  .mt-rt-meta { color: var(--mt-copy); font-size: 0.82rem; }
+
+  @media (max-width: 960px) {
+    .mt-card, .mt-card.mt-card-third { grid-column: span 12; }
+    .mt-stats-bar { flex-wrap: wrap; }
+    .mt-stat { flex: 1 1 40%; min-width: 0; }
+  }
+</style>
+
+<div class="mt-cms">
+
+  <!-- Stats bar -->
+  <div class="mt-stats-bar">
+    <a href="{% url 'admin:catalog_item_changelist' %}" class="mt-stat">
+      <span class="mt-stat-n">{{ stats.items|default:"0" }}</span>
+      <span class="mt-stat-l">Catalog Items</span>
+    </a>
+    <a href="{% url 'admin:inquiries_contactinquiry_changelist' %}" class="mt-stat">
+      <span class="mt-stat-n">{{ stats.inbox_unread|default:"0" }}</span>
+      <span class="mt-stat-l">Unread Inquiries</span>
+    </a>
+    <a href="{% url 'admin:promotions_promotion_changelist' %}" class="mt-stat">
+      <span class="mt-stat-n">{{ stats.promotions|default:"0" }}</span>
+      <span class="mt-stat-l">Active Promotions</span>
+    </a>
+    <a href="{% url 'admin:blog_blogpost_changelist' %}" class="mt-stat">
+      <span class="mt-stat-n">{{ stats.blog_posts|default:"0" }}</span>
+      <span class="mt-stat-l">Published Posts</span>
+    </a>
+    <a href="{% url 'admin:events_event_changelist' %}" class="mt-stat">
+      <span class="mt-stat-n">{{ stats.events|default:"0" }}</span>
+      <span class="mt-stat-l">Events</span>
+    </a>
+    <a href="#" class="mt-stat">
+      <span class="mt-stat-n">{{ stats.visitors|default:"0" }}</span>
+      <span class="mt-stat-l">Total Visits</span>
+    </a>
+  </div>
+
+  <!-- Page header -->
+  <section class="mt-header">
+    <div>
+      <h1>Site Manager</h1>
+      <p>Choose a section to manage content. Drag cards to reorder your dashboard.</p>
+    </div>
+    <div class="mt-actions">
+      <a href="/" target="_blank" rel="noopener">View Live Site &nearr;</a>
+    </div>
+  </section>
+
+  <!-- Card grid -->
+  <div class="mt-grid" id="mt-dashboard-grid">
+
+    <a href="{% url 'admin:inquiries_contactinquiry_changelist' %}" class="mt-card mt-card-wide" data-slug="inbox">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Inbox</p>
+          <h2 class="mt-card-title">Unread messages</h2>
+          <p class="mt-card-desc">All contact, item, service, and quote inquiries. Open, review, and mark as read.</p>
+        </div>
+        <div class="mt-card-count">{{ stats.inbox_unread|default:"0" }}</div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:catalog_item_changelist' %}" class="mt-card" data-slug="catalog">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Catalog</p>
+          <h2 class="mt-card-title">Item listings</h2>
+          <p class="mt-card-desc">All catalog items, brands, categories, and item types. Main inventory area.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:promotions_promotion_changelist' %}" class="mt-card" data-slug="promotions">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Promotions</p>
+          <h2 class="mt-card-title">Offers and campaigns</h2>
+          <p class="mt-card-desc">Active promotions, custom landing pages, CTA buttons, and content blocks.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:blog_blogpost_changelist' %}" class="mt-card" data-slug="blog">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Blog</p>
+          <h2 class="mt-card-title">Posts and articles</h2>
+          <p class="mt-card-desc">Publish blog posts, assign categories and tags, manage draft/published workflow.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:events_event_changelist' %}" class="mt-card" data-slug="events">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Events</p>
+          <h2 class="mt-card-title">Events calendar</h2>
+          <p class="mt-card-desc">Create and manage upcoming events with categories, dates, and subscribe-by-email.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:gallery_galleryphoto_changelist' %}" class="mt-card" data-slug="gallery">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Gallery</p>
+          <h2 class="mt-card-title">Photos and videos</h2>
+          <p class="mt-card-desc">Photo gallery and video embeds. Supports YouTube and Vimeo URLs.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:testimonials_testimonial_changelist' %}" class="mt-card" data-slug="testimonials">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Testimonials</p>
+          <h2 class="mt-card-title">Reviews and praise</h2>
+          <p class="mt-card-desc">Customer testimonials with star ratings and featured flag.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:services_service_changelist' %}" class="mt-card" data-slug="services">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Services</p>
+          <h2 class="mt-card-title">Services and appointments</h2>
+          <p class="mt-card-desc">Service listings, features, and appointment requests with status workflow.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:team_teammember_changelist' %}" class="mt-card" data-slug="team">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Team</p>
+          <h2 class="mt-card-title">Team members</h2>
+          <p class="mt-card-desc">Staff profiles grouped by department. Photos, bios, and contact details.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:workflows_workflowitem_changelist' %}" class="mt-card" data-slug="workflows">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Workflows</p>
+          <h2 class="mt-card-title">Work pipeline</h2>
+          <p class="mt-card-desc">Track items through multi-stage workflows. Notes and audit trail included.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:core_sitesettings_changelist' %}" class="mt-card" data-slug="settings">
+      <div class="mt-card-top">
+        <div>
+          <p class="mt-card-kicker">Settings</p>
+          <h2 class="mt-card-title">Site-wide settings</h2>
+          <p class="mt-card-desc">Contact info, hours, social links, hero slides, FAQs, and user accounts.</p>
+        </div>
+      </div>
+      <div class="mt-card-footer">
+        <span class="mt-open-text">Open</span>
+        <span class="mt-drag" title="Drag to reorder">⋮⋮</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Recent changes -->
+  {% if action_list %}
+  <section class="mt-recent">
+    <h2>Recent changes</h2>
+    <table class="mt-recent-table">
+      {% for action in action_list|slice:":10" %}
+      <tr>
+        <td style="width:26px; padding-right:0;">
+          <span class="mt-badge {% if action.is_addition %}mt-badge-add{% elif action.is_change %}mt-badge-change{% else %}mt-badge-delete{% endif %}">
+            {% if action.is_addition %}+{% elif action.is_change %}~{% else %}–{% endif %}
+          </span>
+        </td>
+        <td>
+          {% if action.is_deletion %}
+            <span class="mt-rt-name">{{ action.object_repr }}</span>
+          {% else %}
+            <a href="{{ action.get_admin_url }}" class="mt-rt-name">{{ action.object_repr }}</a>
+          {% endif %}
+          <span class="mt-rt-meta" style="margin-left:8px;">{{ action.content_type.name|capfirst }}</span>
+        </td>
+        <td class="mt-rt-meta" style="text-align:right; white-space:nowrap;">{{ action.action_time|timesince }} ago</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+  {% endif %}
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var grid = document.getElementById("mt-dashboard-grid");
+  if (!grid) return;
+
+  var orderKey = "mt_dashboard_card_order";
+  var saved = localStorage.getItem(orderKey);
+  if (saved) {
+    try {
+      JSON.parse(saved).forEach(function (slug) {
+        var card = grid.querySelector('[data-slug="' + slug + '"]');
+        if (card) grid.appendChild(card);
+      });
+    } catch (e) {}
+  }
+
+  if (typeof Sortable === "undefined") return;
+  Sortable.create(grid, {
+    animation: 160,
+    handle: ".mt-drag",
+    draggable: ".mt-card",
+    ghostClass: "mt-card-ghost",
+    onEnd: function () {
+      var order = Array.from(grid.querySelectorAll(".mt-card")).map(function (c) {
+        return c.getAttribute("data-slug");
+      });
+      localStorage.setItem(orderKey, JSON.stringify(order));
+    }
+  });
+});
+</script>
+{% endblock %}

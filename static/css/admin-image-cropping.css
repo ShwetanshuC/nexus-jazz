@@ -1,0 +1,144 @@
+/* ─────────────────────────────────────────────────────
+   Miller Piano — Admin Image Crop Modal (simplified)
+───────────────────────────────────────────────────── */
+
+.mp-cropper-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.mp-cropper-dialog {
+  width: min(960px, 96vw);
+  max-height: 94vh;
+  background: #1a1714;
+  border: 1px solid #2c2825;
+  border-radius: 6px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  color: #ede5db;
+  font-family: "Inter", system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────── */
+.mp-cropper-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #2c2825;
+  background: #0f0d0c;
+}
+
+.mp-cropper-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ede5db;
+}
+
+/* ── Toolbar ─────────────────────────────────────── */
+.mp-cropper-ratios {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: #141210;
+  border-bottom: 1px solid #2c2825;
+  flex-wrap: wrap;
+}
+
+.mp-cropper-tools-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5a4f49;
+  margin-right: 4px;
+}
+
+.mp-cropper-ratios .button,
+.mp-cropper-scale-out,
+.mp-cropper-scale-in {
+  background: #201d1a !important;
+  border: 1px solid #3a322c !important;
+  color: #c5bab2 !important;
+  font-size: 11px !important;
+  padding: 5px 12px !important;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.mp-cropper-ratios .button:hover,
+.mp-cropper-scale-out:hover,
+.mp-cropper-scale-in:hover {
+  background: #c44444 !important;
+  border-color: #c44444 !important;
+  color: #fff !important;
+}
+
+.mp-cropper-scale-out,
+.mp-cropper-scale-in {
+  min-width: 34px;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  text-align: center;
+}
+
+/* ── Canvas ──────────────────────────────────────── */
+.mp-cropper-body {
+  flex: 1;
+  min-height: 360px;
+  background: #0a0806;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mp-cropper-image {
+  max-width: 100%;
+  display: block;
+}
+
+/* ── Actions ─────────────────────────────────────── */
+.mp-cropper-actions {
+  border-top: 1px solid #2c2825;
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  background: #0f0d0c;
+  flex-wrap: wrap;
+}
+
+.mp-cropper-actions .button {
+  background: #201d1a !important;
+  border: 1px solid #3a322c !important;
+  color: #c5bab2 !important;
+  font-size: 12px !important;
+  padding: 7px 16px !important;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.mp-cropper-actions .button:hover {
+  background: #2c2825 !important;
+  color: #ede5db !important;
+}
+
+.mp-cropper-actions .button-primary {
+  background: #2e8b57 !important;
+  border-color: #2e8b57 !important;
+  color: #ffffff !important;
+}
+
+.mp-cropper-actions .button-primary:hover {
+  background: #1f6a42 !important;
+  border-color: #1f6a42 !important;
+}

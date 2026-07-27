@@ -1,0 +1,323 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} — {% endif %}Site Manager{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}?v=1">
+  <script>
+  (function () {
+    var ua = navigator.userAgent;
+    var isSafari = /safari/i.test(ua) && !/chrome|chromium|crios|fxios|android/i.test(ua);
+    if (!isSafari) return;
+    var s = document.createElement('style');
+    s.textContent = [
+      'select:not(.admin-autocomplete):not([multiple]):not([size]) {',
+      '  -webkit-appearance: auto !important;',
+      '  appearance: auto !important;',
+      '  color-scheme: dark !important;',
+      '  background-color: #1e1a17 !important;',
+      '  color: #f6efe8 !important;',
+      '  border: 1px solid #3b342f !important;',
+      '  border-radius: 8px !important;',
+      '  font-size: 14px !important;',
+      '  padding: 9px 12px !important;',
+      '}'
+    ].join('\n');
+    document.head.appendChild(s);
+    function fixSelect(sel) {
+      sel.style.setProperty('-webkit-appearance', 'auto', 'important');
+      sel.style.setProperty('appearance', 'auto', 'important');
+      sel.style.setProperty('color-scheme', 'dark');
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('select:not([multiple])').forEach(fixSelect);
+      new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          m.addedNodes.forEach(function (node) {
+            if (node.nodeType !== 1) return;
+            if (node.matches('select:not([multiple])')) fixSelect(node);
+            node.querySelectorAll('select:not([multiple])').forEach(fixSelect);
+          });
+        });
+      }).observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+  </script>
+{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name">
+    <a href="{% url 'admin:index' %}">Site Manager</a>
+  </h1>
+{% endblock %}
+
+{% block nav-global %}
+  <div id="mt-top-nav">
+    <a href="{% url 'admin:index' %}" class="mt-topnav-link">Dashboard</a>
+    <a href="{% url 'admin:inquiries_contactinquiry_changelist' %}" class="mt-topnav-link">Inbox</a>
+    <a href="/" target="_blank" rel="noopener" class="mt-topnav-link">View Site &nearr;</a>
+  </div>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+  <link rel="stylesheet" href="{% static 'css/admin-image-cropping.css' %}?v=1">
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <script defer src="{% static 'js/admin-image-cropping.js' %}?v=1"></script>
+  <script defer src="{% static 'js/admin-focal-point-picker.js' %}?v=1"></script>
+  <script defer src="{% static 'js/admin-promotion-ux.js' %}?v=1"></script>
+  <script defer src="{% static 'js/admin-promotion-blocks.js' %}?v=1"></script>
+
+  <style>
+    /* Top nav links */
+    #mt-top-nav {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-height: 42px;
+      font-family: var(--mt-font-brand, "Cormorant Garamond", Georgia, serif) !important;
+      font-size: 18px !important;
+      font-weight: 700 !important;
+      line-height: 1 !important;
+    }
+    .mt-topnav-link,
+    .mt-topnav-link:link,
+    .mt-topnav-link:visited {
+      color: rgba(255,255,255,0.7) !important;
+      font-family: var(--mt-font-brand, "Cormorant Garamond", Georgia, serif) !important;
+      font-size: 18px !important;
+      font-weight: 700 !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 42px;
+      box-sizing: border-box;
+      padding: 0 16px;
+      text-decoration: none !important;
+      border-left: 1px solid rgba(255,255,255,0.12);
+      transition: color .12s, background .12s;
+      letter-spacing: 0.02em;
+    }
+    .mt-topnav-link:first-child { border-left: none; }
+    .mt-topnav-link:hover { color: #fff !important; background: rgba(255,255,255,0.07); }
+    @media (max-width: 767px) {
+      #header { flex-wrap: wrap; padding: 10px 14px; gap: 8px; min-height: 0; }
+      #mt-top-nav {
+        flex: 1 1 100%;
+        order: 3;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        padding-top: 4px;
+        min-height: 36px;
+      }
+      #mt-top-nav::-webkit-scrollbar { display: none; }
+      .mt-topnav-link { font-size: 13px !important; height: 32px !important; padding: 0 12px !important; white-space: nowrap; }
+    }
+  </style>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Auto-scroll to first error on form pages
+    function firstVisible(elements) {
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        if (!el) continue;
+        var style = window.getComputedStyle(el);
+        if (style.display !== 'none' && style.visibility !== 'hidden') return el;
+      }
+      return null;
+    }
+    function expandCollapsedAncestors(node) {
+      if (!node) return;
+      node.querySelectorAll('fieldset.collapse').forEach(function (fs) {
+        if (fs.querySelector('.errors, .errorlist, .form-row.errors')) fs.classList.remove('collapsed');
+      });
+      var parent = node.parentElement;
+      while (parent) {
+        if (parent.matches('fieldset.collapse, .inline-related.collapse')) parent.classList.remove('collapsed');
+        parent = parent.parentElement;
+      }
+    }
+    var errorTarget = firstVisible(Array.from(document.querySelectorAll(
+      '.form-row.errors, .inline-related .form-row .errorlist, .inline-related .errors, .errorlist'
+    )));
+    if (!errorTarget) errorTarget = firstVisible(Array.from(document.querySelectorAll('.errornote, .messagelist .error')));
+    if (errorTarget) {
+      var focusTarget = errorTarget.closest('.form-row') || errorTarget.closest('.inline-related') || errorTarget;
+      expandCollapsedAncestors(focusTarget);
+      setTimeout(function () {
+        focusTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var input = focusTarget.querySelector('input, select, textarea, button');
+        if (input && !input.disabled) input.focus({ preventScroll: true });
+      }, 40);
+    }
+  });
+  </script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof Sortable === 'undefined') return;
+    var sidebar = document.getElementById('nav-sidebar');
+    if (!sidebar) return;
+    var firstMod = sidebar.querySelector('.module');
+    if (!firstMod) return;
+    var modsContainer = firstMod.parentElement;
+
+    // Restore saved group order
+    var GROUP_KEY = 'mt_sidebar_order';
+    (function restoreGroupOrder() {
+      var saved = localStorage.getItem(GROUP_KEY);
+      if (!saved) return;
+      var names; try { names = JSON.parse(saved); } catch (e) { return; }
+      names.forEach(function (name) {
+        var mods = modsContainer.querySelectorAll('.module');
+        for (var i = 0; i < mods.length; i++) {
+          var a = mods[i].querySelector('caption a');
+          if (a && a.textContent.trim() === name) { modsContainer.appendChild(mods[i]); break; }
+        }
+      });
+    })();
+
+    // Inject drag handles on captions
+    modsContainer.querySelectorAll('.module caption').forEach(function (cap) {
+      if (cap.querySelector('.mt-sidebar-drag-handle')) return;
+      var handle = document.createElement('span');
+      handle.className = 'mt-sidebar-drag-handle';
+      handle.title = 'Drag to reorder section';
+      handle.style.cssText = 'display:inline-block;width:10px;height:10px;flex-shrink:0;cursor:grab;opacity:0.35;transition:opacity 0.15s;background-image:radial-gradient(circle,var(--mt-muted,#8C7D74) 1.2px,transparent 1.2px);background-size:4px 4px;background-repeat:repeat;border-radius:2px;margin-right:6px;';
+      cap.insertBefore(handle, cap.firstChild);
+    });
+
+    // Group-level sortable
+    Sortable.create(modsContainer, {
+      handle: '.mt-sidebar-drag-handle',
+      animation: 150,
+      ghostClass: 'mt-sidebar-ghost',
+      onEnd: function () {
+        var names = Array.from(modsContainer.querySelectorAll('.module caption a')).map(function (a) { return a.textContent.trim(); });
+        localStorage.setItem(GROUP_KEY, JSON.stringify(names));
+      },
+    });
+
+    // Row-level sortable within each group
+    var ROW_KEY_PREFIX = 'mt_sidebar_rows_';
+    modsContainer.querySelectorAll('.module').forEach(function (mod) {
+      var tbody = mod.querySelector('tbody');
+      if (!tbody) return;
+      if (tbody.querySelectorAll('tr').length < 2) return;
+      var groupName = (mod.querySelector('caption a') || {}).textContent || '';
+      var savedRows = localStorage.getItem(ROW_KEY_PREFIX + groupName);
+      if (savedRows) {
+        try {
+          JSON.parse(savedRows).forEach(function (href) {
+            var link = tbody.querySelector('tr a[href="' + href + '"]');
+            if (link) tbody.appendChild(link.closest('tr'));
+          });
+        } catch (e) {}
+      }
+      Sortable.create(tbody, {
+        animation: 150,
+        ghostClass: 'mt-sidebar-row-ghost',
+        dragClass: 'mt-sidebar-row-dragging',
+        onEnd: function () {
+          var hrefs = Array.from(tbody.querySelectorAll('tr td:first-child a')).map(function (a) { return a.getAttribute('href'); });
+          localStorage.setItem(ROW_KEY_PREFIX + groupName, JSON.stringify(hrefs));
+        },
+      });
+    });
+  });
+  </script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!document.body.classList.contains('change-list')) return;
+    var changelist = document.getElementById('changelist');
+    var changelistForm = document.getElementById('changelist-form');
+    if (!changelist || !changelistForm) return;
+
+    var toolbar = document.querySelector('#changelist #toolbar');
+    if (!toolbar) {
+      toolbar = document.createElement('div');
+      toolbar.id = 'toolbar';
+      toolbar.className = 'mt-toolbar-shell';
+      var fc = document.querySelector('#changelist .changelist-form-container');
+      if (fc && fc.parentNode) fc.parentNode.insertBefore(toolbar, fc);
+      else changelist.insertBefore(toolbar, changelistForm);
+    }
+
+    var toolbarActions = document.createElement('div');
+    toolbarActions.className = 'mp-toolbar-actions';
+
+    var addLink = document.querySelector('#content-main .object-tools a.addlink');
+    if (addLink) {
+      var addBtn = document.createElement('a');
+      addBtn.className = 'mp-toolbar-btn mp-toolbar-btn--add';
+      addBtn.href = addLink.getAttribute('href');
+      addBtn.textContent = addLink.textContent.trim();
+      toolbarActions.appendChild(addBtn);
+      document.body.classList.add('mp-has-toolbar-add');
+    }
+
+    var actionSelect = changelistForm.querySelector('.actions select[name="action"]');
+    var goButton     = changelistForm.querySelector('.actions button[name="index"]');
+    var actionToggle = changelistForm.querySelector('#action-toggle');
+    var deleteBtn    = null;
+
+    if (actionSelect) {
+      var hasDelete = Array.from(actionSelect.options).some(function (o) { return o.value === 'delete_selected'; });
+      if (hasDelete) {
+        deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'mp-toolbar-btn mp-toolbar-btn--delete is-hidden';
+        deleteBtn.textContent = 'Delete selected';
+        deleteBtn.addEventListener('click', function () {
+          if (!changelistForm.querySelectorAll('input.action-select:checked').length) { alert('Select one or more items first.'); return; }
+          actionSelect.value = 'delete_selected';
+          goButton.click();
+        });
+      }
+    }
+
+    if (actionToggle && actionSelect) {
+      var selectBtn = document.createElement('button');
+      selectBtn.type = 'button';
+      selectBtn.className = 'mp-toolbar-btn mp-toolbar-btn--select';
+      selectBtn.textContent = 'Select multiple';
+      var isSelectionMode = false;
+
+      function syncState() {
+        var hasSel = changelistForm.querySelectorAll('input.action-select:checked').length > 0;
+        selectBtn.classList.toggle('is-active', isSelectionMode || hasSel);
+        selectBtn.textContent = isSelectionMode ? 'Cancel selection' : 'Select multiple';
+        if (deleteBtn) deleteBtn.classList.toggle('is-hidden', !(isSelectionMode && hasSel));
+      }
+
+      selectBtn.addEventListener('click', function () {
+        isSelectionMode = !isSelectionMode;
+        document.body.classList.toggle('mp-selection-mode', isSelectionMode);
+        if (!isSelectionMode) {
+          changelistForm.querySelectorAll('input.action-select:checked').forEach(function (cb) { cb.checked = false; });
+          if (actionToggle.checked) actionToggle.checked = false;
+          var sa = changelistForm.querySelector('input.select-across');
+          if (sa) sa.value = '0';
+        }
+        syncState();
+      });
+      changelistForm.addEventListener('change', function (e) {
+        if (e.target && (e.target.matches('input.action-select') || e.target.matches('#action-toggle'))) syncState();
+      });
+      toolbarActions.appendChild(selectBtn);
+      if (deleteBtn) toolbarActions.appendChild(deleteBtn);
+      syncState();
+    }
+
+    if (toolbarActions.children.length > 0) toolbar.appendChild(toolbarActions);
+  });
+  </script>
+{% endblock %}

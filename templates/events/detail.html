@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} — Nexus Jazz Group{% endblock %}
+{% block meta_description %}{{ event.title }} — {{ event.date|date:"F j, Y" }}{% if event.location %} at {{ event.location }}{% endif %}. Nexus Jazz Group, live.{% endblock %}
+
+{% block content %}
+
+<article class="section-x page-head">
+  <div class="container article">
+    <p class="article__meta">
+      <time datetime="{{ event.date|date:'Y-m-d' }}">{{ event.date|date:"l, F j, Y" }}</time>
+      {% if event.start_time %} · {{ event.start_time|time:"g:i A" }}{% endif %}
+      {% if event.category %} · {{ event.category.name }}{% endif %}
+    </p>
+    <h1>{{ event.title }}</h1>
+
+    {% if event.image %}
+    <figure class="duo article__figure">
+      <img src="{{ event.image.url }}" alt="{{ event.title }}"
+           style="object-position: center {{ event.image_focal_y }}%" decoding="async">
+    </figure>
+    {% endif %}
+
+    <div class="article__body">
+      {% if event.location %}<p><strong>{{ event.location }}</strong>{% if event.address %}<br>{{ event.address|linebreaksbr }}{% endif %}</p>{% endif %}
+      {{ event.description|linebreaks }}
+      {% if event.price %}<p>Tickets: ${{ event.price }}</p>{% endif %}
+    </div>
+
+    <p class="section-foot">
+      {% if event.ticket_url %}
+      <a class="btn btn--book" href="{{ event.ticket_url }}" target="_blank" rel="noopener">Get tickets</a>
+      {% endif %}
+      <a class="btn btn--ghost" href="{% url 'events_index' %}">← All dates</a>
+    </p>
+  </div>
+</article>
+
+{% endblock %}

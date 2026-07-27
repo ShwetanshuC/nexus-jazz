@@ -1,0 +1,35 @@
+{% comment %}
+Poster card for one news post — used by BOTH the home "News" section and the
+news index, so the two can never drift. Expects `post`.
+
+The cover is the card: a photo when the post has one, otherwise a TYPE POSTER
+(record-sleeve treatment — brass label, the title set large on black). Posts
+without art are the norm for this client, so the fallback is designed, not a
+grey box.
+{% endcomment %}
+<a class="post-card{% if not post.featured_image %} post-card--plate{% endif %}" href="{% url 'blog_detail' post.slug %}">
+  <div class="post-card__cover">
+    {% if post.featured_image %}
+    <img src="{{ post.featured_image.url }}" alt=""
+         style="object-position: center {% widthratio post.image_focal_y 1 100 %}%"
+         loading="lazy" decoding="async">
+    {% else %}
+    <div class="post-card__plate" aria-hidden="true">
+      <span class="post-card__plate-label">Nexus Jazz Group</span>
+      <span class="post-card__plate-title">{{ post.title }}</span>
+      <span class="post-card__plate-rule"></span>
+    </div>
+    {% endif %}
+    <span class="post-card__wash" aria-hidden="true"></span>
+    <span class="post-card__tag">{% if post.category %}{{ post.category.name }}{% else %}News{% endif %}</span>
+  </div>
+
+  <div class="post-card__body">
+    <p class="post-card__date">
+      <time datetime="{{ post.published_at|date:'Y-m-d' }}">{{ post.published_at|date:"M j, Y" }}</time>
+    </p>
+    <h3 class="post-card__title">{{ post.title }}</h3>
+    {% if post.excerpt %}<p class="post-card__excerpt">{{ post.excerpt }}</p>{% endif %}
+    <span class="post-card__more">Read the story <span aria-hidden="true">→</span></span>
+  </div>
+</a>

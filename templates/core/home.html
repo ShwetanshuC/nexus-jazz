@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load static %}
+{% load assets %}
+
+{% block title %}Nexus Jazz Group — Original Jazz from Charlotte, NC{% endblock %}
+
+{% block intro %}
+  <script>
+    /* The announcer's introduction (see .hero-stage in nexus.css). Runs
+       synchronously, BEFORE the hero paints, so the curtain drops with no
+       flash of the composed state; schedules every phase itself so it can
+       never stall the page mid-sequence. First-time visitors with motion
+       enabled get the full light show once; reduced-motion and repeat
+       visits (this session) get the finished hero immediately.
+
+       TEMPO: the sequence runs on a musical beat. One phase per beat, so
+       BPM is the single speed dial — 38 BPM (60/38 = 1.579s per line), the
+       tempo the client settled on 2026-07-27. Override with ?bpm=NN if it ever
+       needs re-tuning (the dev slider panel was removed once 38 was chosen). NOTE: --beat also drives the CSS fade durations, so
+       one number re-times cues AND fades together. */
+    (function () {
+      window.HERO_BPM_DEFAULT = 38;
+      try {
+        var bpm = window.HERO_BPM_DEFAULT;
+        var q = /[?&]bpm=(\d+(?:\.\d+)?)/.exec(location.search);
+        if (q) bpm = parseFloat(q[1]);
+        else { try { var s = localStorage.getItem('heroBpm'); if (s) bpm = parseFloat(s); } catch (e) {} }
+        if (!(bpm > 0)) bpm = window.HERO_BPM_DEFAULT;
+        window.HERO_BPM = bpm;
+
+        var root = document.documentElement;
+        var beat = 60000 / bpm;                    /* ms per announced line */
+        root.style.setProperty('--beat', (beat / 1000).toFixed(3) + 's');
+
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var seen = false;
+        try { seen = !!sessionStorage.getItem('heroIntroSeen'); } catch (e) {}
+        if (reduce || seen) return;               /* composed default shows */
+        var set = function (p) { root.setAttribute('data-phase', String(p)); };
+        set(0);                                    /* curtain down */
+        /* welcome → name → everything (group line, picture, chrome) one beat
+           apart. Phase 3 IS the finished hero — nothing fades in after it. */
+        [1, 2, 3].forEach(function (phase) {
+          setTimeout(function () { set(phase); }, beat * phase);
+        });
+        try { sessionStorage.setItem('heroIntroSeen', '1'); } catch (e) {}
+      } catch (e) {}
+    })();
+  </script>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static_v 'js/hero-intro.js' %}" defer></script>
+  <script type="module" src="{% static_v 'js/live-shader.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<header class="hero-stage" id="hero-stage" aria-label="Nexus Jazz Group">
+  {% with slide=hero_slides.0 %}
+  <!-- the stage picture: one full-bleed portrait; fades up on the last line -->
+  <div class="hero-stage__feature">
+    {% if hero_feature %}
+    {% comment %}full-bleed hero crop is fixed in CSS (object-position) so every
+    face clears the top — decoupled from the model focal, which is tuned for the
+    gallery's square crop.{% endcomment %}
+    <img src="{{ hero_feature.image.url }}" alt="Keenan Harmon and the Nexus Jazz Group"
+         class="hero-stage__img" fetchpriority="high" decoding="async">
+    {% elif slide %}
+    <img src="{{ slide.image.url }}" alt="Keenan Harmon and the Nexus Jazz Group performing live"
+         class="hero-stage__img" style="--hero-focal-y: {% widthratio slide.image_focal_y 1 100 %}%"
+         fetchpriority="high" decoding="async">
+    {% endif %}
+    <span class="hero-stage__scrim" aria-hidden="true"></span>
+  </div>
+
+  <!-- follow-spots: cut in on the two black-stage lines only; they wash out as
+       the picture rises, so the finished frame carries no glow -->
+  <span class="hero-stage__spot hero-stage__spot--1" aria-hidden="true"></span>
+  <span class="hero-stage__spot hero-stage__spot--2" aria-hidden="true"></span>
+
+  <div class="hero-stage__inner">
+    <p class="hero-stage__welcome">Welcome to the viewing of</p>
+    <h1 class="hero-stage__title">
+      <span class="hero-stage__name">Keenan Harmon</span>
+      <span class="hero-stage__group">
+        <span class="hero-stage__group-lead">and the</span>
+        <span class="hero-stage__group-name">Nexus Jazz Group</span>
+      </span>
+    </h1>
+    <div class="hero-stage__lower">
+      <p class="hero-stage__sub">A Charlotte jazz collective exploring the music's far reach in sound and genre — live, and unmistakably alive.</p>
+      <div class="hero-stage__actions">
+        <a class="btn btn--book" href="{% url 'booking' %}">Book the Band</a>
+        <a class="btn btn--ghost" href="{% url 'events_index' %}">Upcoming dates</a>
+      </div>
+    </div>
+  </div>
+  {% endwith %}
+</header>
+<button class="hero-stage__replay" id="hero-replay" type="button">↻ Replay intro</button>
+
+<!-- The band's about + info hub. Copy column left, floating portrait right;
+     the numbered "01 The Sound" kicker was dropped (2026-07-26) — the
+     statement is the heading now. -->
+<section class="section-x about" id="sound" aria-labelledby="about-title">
+  <div class="container about__grid">
+    {% comment %}No .reveal here on purpose: this title is the bit that peeks
+    above the fold as the scroll cue, and a reveal would hold it at opacity 0
+    until the observer fires — i.e. the cue would be invisible.{% endcomment %}
+    <h2 class="about__title" id="about-title">
+      Sometimes earthy, sometimes bluesy —<br>
+      <span class="about__title-accent">always progressive.</span>
+    </h2>
+
+    <div class="about__copy">
+      <p class="about__lede reveal reveal-d1">
+        Formed in 2019 by Keenan Harmon for his original music that explores jazz’s far reach in
+        sound and genre. The group’s home base is Charlotte, NC performing throughout the region
+        in diverse locations from breweries and clubs to Huntersville’s Jazz Appreciation
+        Festival (April 2023 and April 2025) to full length concerts at Blumenthal Arts Stagedoor
+        Theater.
+      </p>
+      <p class="about__lede reveal reveal-d1">
+        Drawing from the group members’ collectively diverse music backgrounds — from
+        R&amp;B to Rock to Bluegrass to symphonic music the group comes together as the Nexus
+        Jazz Group.
+      </p>
+
+      <div class="about__actions reveal reveal-d3">
+        <a class="btn about__cta" href="{% url 'team' %}">Meet the band</a>
+        <a class="btn btn--ghost" href="{% url 'gallery' %}">Music &amp; Media</a>
+      </div>
+    </div>
+
+    <figure class="about__media reveal reveal-d2">
+      <div class="about__frame">
+        <img src="{% static 'img/band-lineup.jpg' %}" width="1200" height="1715"
+             alt="The Nexus Jazz Group — Keenan Harmon seated with trumpet, the band standing behind him"
+             loading="lazy" decoding="async">
+      </div>
+      <figcaption>The full lineup — Charlotte, NC</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section-x news-retro" aria-labelledby="news-title">
+  <div class="container">
+    <div class="news-retro__head">
+      <h2 class="news-retro__heading reveal" id="news-title">Latest News</h2>
+    </div>
+
+    <div class="post-cards post-cards--retro">
+      {% for post in featured_posts %}
+      <div class="reveal{% if forloop.counter0 == 1 %} reveal-d1{% elif forloop.counter0 == 2 %} reveal-d2{% elif forloop.counter0 == 3 %} reveal-d3{% elif forloop.counter0 > 3 %} reveal-d4{% endif %}">
+        {% include "blog/_post_card.html" with post=post %}
+      </div>
+      {% empty %}
+      <p class="empty-note">No news yet — the first note lands soon.</p>
+      {% endfor %}
+    </div>
+
+    {% if featured_posts %}
+    <p class="section-foot reveal"><a class="btn btn--retro" href="{% url 'blog_index' %}">All news</a></p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section-x section-x--hairline" id="live-shader-host" aria-labelledby="live-title">
+  <div class="container">
+    <div class="ex-header">
+      <p class="ex-kicker"><span class="ex-num">02</span> Live</p>
+      <h2 class="ex-title" id="live-title">On stage next</h2>
+    </div>
+    <ul class="event-rows">
+      {% for event in upcoming_events %}
+      <li class="reveal{% if not forloop.first %} reveal-d{{ forloop.counter0 }}{% endif %}">
+        <a class="event-row" href="{% url 'event_detail' event.slug %}">
+          <span class="event-row__date">{{ event.date|date:"d" }}<small>{{ event.date|date:"M Y" }}</small></span>
+          <span>
+            <span class="event-row__title">{{ event.title }}</span><br>
+            <span class="event-row__meta">{{ event.location }}{% if event.start_time %} · {{ event.start_time|time:"g:i A" }}{% endif %}</span>
+          </span>
+          <span class="event-row__go">Details →</span>
+        </a>
+      </li>
+      {% empty %}
+      <li>
+        <p class="empty-note">New dates are being confirmed — check back soon, or
+        <a href="{% url 'booking' %}">bring the band to your room</a>.</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if upcoming_events %}
+    <p class="section-foot reveal"><a class="btn btn--ghost" href="{% url 'events_index' %}">All dates</a></p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section-x viewing-room" aria-labelledby="listen-title">
+  <div class="container">
+    <div class="ex-header">
+      <p class="ex-kicker"><span class="ex-num">03</span> Listen</p>
+      <h2 class="ex-title" id="listen-title">Hear where jazz can go</h2>
+      <p class="ex-lede">Recordings, live video, and photographs from the road — collected in one room.</p>
+    </div>
+    <p class="reveal"><a class="btn btn--book" href="{% url 'gallery' %}">Enter Music &amp; Media</a></p>
+  </div>
+</section>
+
+<section class="cta-x" aria-labelledby="book-title">
+  <div class="container">
+    <p class="ex-kicker">Booking</p>
+    <h2 id="book-title">Put this band in your room</h2>
+    <p>Tell us the date, the place, and the occasion — the set is shaped to fit,
+       from a trio to the full five-piece band.</p>
+    <a class="btn btn--book" href="{% url 'booking' %}">Start a booking inquiry</a>
+    <p class="hero-x__reassure">Based in Charlotte · travels across the Carolinas &amp; beyond</p>
+  </div>
+</section>
+
+{% endblock %}

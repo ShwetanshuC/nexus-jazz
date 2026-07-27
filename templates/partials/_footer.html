@@ -1,0 +1,40 @@
+{% load static %}
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__id">
+        <div class="footer__brand">
+          <span class="brand-word">Nexus</span>
+          <span class="brand-sub">Jazz Group</span>
+        </div>
+        {% if site_settings.tagline %}
+        <p class="footer__tagline">{{ site_settings.tagline }}</p>
+        {% endif %}
+        <p class="footer__place">Charlotte, North Carolina · est. 2019</p>
+      </div>
+
+      <nav class="footer__nav" aria-label="Footer">
+        <ul class="footer__links">
+          <li><a href="{% url 'team' %}">The Band</a></li>
+          <li><a href="{% url 'gallery' %}">Music &amp; Media</a></li>
+          <li><a href="{% url 'events_index' %}">Live</a></li>
+          <li><a href="{% url 'blog_index' %}">News</a></li>
+        </ul>
+        <ul class="footer__links">
+          <li><a href="{% url 'booking' %}">Book the Band</a></li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+          {% if site_settings.email %}
+          <li><a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a></li>
+          {% endif %}
+          {% if site_settings.instagram_url %}
+          <li><a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">Instagram</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer__bottom">
+      <p>&copy; {% now "Y" %} Nexus Jazz Group. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Contact — Nexus Jazz Group{% endblock %}
+{% block meta_description %}Get in touch with the Nexus Jazz Group — press, collaborations, and everything that isn't a booking.{% endblock %}
+
+{% block content %}
+
+<header class="page-head">
+  <div class="container">
+    <div class="ex-header">
+      <p class="ex-kicker">Contact</p>
+      <h1 class="ex-title">Say hello</h1>
+      <p class="ex-lede">Press, collaborations, or just a word after a show.
+        Booking an event? Use the <a href="{% url 'booking' %}">booking form</a> —
+        it asks the right questions.</p>
+    </div>
+  </div>
+</header>
+
+<section class="section-x section-x--flush" aria-label="Contact form">
+  <div class="container"><div class="prose-col">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {{ form.website }}
+      {% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}
+
+      <div class="form-group">
+        <label for="{{ form.name.id_for_label }}">Name</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.phone.id_for_label }}">Phone <span class="form-note">(optional)</span></label>
+        {{ form.phone }}
+        {{ form.phone.errors }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.subject.id_for_label }}">Subject</label>
+        {{ form.subject }}
+        {{ form.subject.errors }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.message.id_for_label }}">Message</label>
+        {{ form.message }}
+        {{ form.message.errors }}
+      </div>
+
+      <button type="submit" class="btn btn--book">Send message</button>
+      <p class="form-note">Goes straight to the band — replies usually within two days.</p>
+    </form>
+
+    {% if site_settings.email %}
+    <p class="mt-8">Prefer email? <a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a></p>
+    {% endif %}
+  </div></div>
+</section>
+
+{% endblock %}

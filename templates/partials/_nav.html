@@ -1,0 +1,28 @@
+{% load static %}
+<nav class="nav" data-sticky>
+  <div class="nav__inner">
+    <a class="nav__brand" href="{% url 'home' %}" aria-label="Nexus Jazz Group — home">
+      <span class="brand-word">Nexus</span>
+      <span class="brand-sub">Jazz Group</span>
+    </a>
+
+    <input type="checkbox" id="nav-toggle" class="nav__toggle" aria-hidden="true">
+    <label for="nav-toggle" class="nav__toggle-label" aria-label="Toggle navigation">
+      <span></span>
+      <span></span>
+      <span></span>
+    </label>
+
+    <ul class="nav__links">
+      <li><a href="{% url 'team' %}">The Band</a></li>
+      <li><a href="{% url 'gallery' %}">Music &amp; Media</a></li>
+      <li><a href="{% url 'events_index' %}">Live</a></li>
+      <li><a href="{% url 'blog_index' %}">News</a></li>
+      <li><a href="{% url 'contact' %}">Contact</a></li>
+      <li class="nav__cta"><a class="btn btn--book" href="{% url 'booking' %}">Book the Band</a></li>
+      {% if user.is_staff %}
+      <li><a href="{% url 'admin:index' %}" class="nav__admin">Admin</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} — Nexus Jazz Group{% endblock %}
+{% block meta_description %}{{ post.excerpt|default:post.title }}{% endblock %}
+
+{% block content %}
+
+<div class="news-retro">
+  <article class="section-x page-head">
+    <div class="container article">
+      <p class="article__meta">
+        <time datetime="{{ post.published_at|date:'Y-m-d' }}">{{ post.published_at|date:"F j, Y" }}</time>
+        {% if post.category %} · {{ post.category.name }}{% endif %}
+      </p>
+      <h1>{{ post.title }}</h1>
+      {% if post.excerpt %}
+      <p class="article__standfirst">{{ post.excerpt }}</p>
+      {% endif %}
+      {% if post.featured_image %}
+      <figure class="duo duo--retro article__figure">
+        {% comment %}image_focal_y is a 0–1 FloatField — widthratio, not a bare
+        value, or 0.28 emits "0.28%" and pins the crop to the top edge.{% endcomment %}
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}"
+             style="object-position: center {% widthratio post.image_focal_y 1 100 %}%" decoding="async">
+      </figure>
+      {% endif %}
+      <div class="article__body">{{ post.body|linebreaks }}</div>
+      <p class="section-foot"><a class="btn btn--retro" href="{% url 'blog_index' %}">← All news</a></p>
+    </div>
+  </article>
+</div>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Thank you — Nexus Jazz Group{% endblock %}
+
+{% block content %}
+
+<section class="section-x page-head center" aria-label="Thank you">
+  <div class="container--prose">
+    <p class="ex-kicker">Received</p>
+    <h1 class="ex-title">Thank you — we got it.</h1>
+    <p class="ex-lede">The band reads every note. You'll hear back
+      within two business days.</p>
+    <p class="section-foot">
+      <a class="btn btn--ghost" href="{% url 'home' %}">Back to the site</a>
+      <a class="btn btn--ghost" href="{% url 'events_index' %}">See upcoming dates</a>
+    </p>
+  </div>
+</section>
+
+{% endblock %}

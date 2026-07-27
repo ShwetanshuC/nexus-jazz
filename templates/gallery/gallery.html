@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Music &amp; Media — Nexus Jazz Group{% endblock %}
+{% block meta_description %}Listen to the Nexus Jazz Group — recordings, live video, and photographs from Charlotte's progressive jazz five-piece.{% endblock %}
+
+{% block content %}
+
+<header class="page-head">
+  <div class="container">
+    <div class="ex-header">
+      <p class="ex-kicker">Music &amp; Media</p>
+      <h1 class="ex-title">The listening room</h1>
+      <p class="ex-lede">Recordings first — that's the point. Then the band on film, and on the wall.</p>
+    </div>
+  </div>
+</header>
+
+<section class="section-x section-x--flush" aria-labelledby="listen-h">
+  <div class="container">
+    <div class="ex-header">
+      <p class="ex-kicker"><span class="ex-num">01</span> Listen</p>
+      <h2 class="ex-title" id="listen-h">Recordings</h2>
+    </div>
+    <div class="embed-grid">
+      {% for a in audio_embeds %}
+      <figure class="embed-card embed-card--audio reveal{% if forloop.counter0 > 0 and forloop.counter0 < 5 %} reveal-d{{ forloop.counter0 }}{% endif %}">
+        {% if a.embed_code %}
+          {{ a.embed_code|safe }}
+        {% else %}
+          <iframe src="{{ a.embed_url }}" title="{{ a.title }}" loading="lazy"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+        {% endif %}
+        <figcaption>{{ a.title }}{% if a.caption %} — {{ a.caption }}{% endif %}</figcaption>
+      </figure>
+      {% empty %}
+      <div class="plate">
+        <span class="plate__glyph" aria-hidden="true">In the studio</span>
+        <p>The group is tracking new material — recordings land on this wall first.
+        Meanwhile, catch the band <a href="{% url 'events_index' %}">live</a>.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section-x section-x--hairline" aria-labelledby="watch-h">
+  <div class="container">
+    <div class="ex-header">
+      <p class="ex-kicker"><span class="ex-num">02</span> Watch</p>
+      <h2 class="ex-title" id="watch-h">On film</h2>
+    </div>
+    <div class="embed-grid">
+      {% for v in videos %}
+      <figure class="embed-card embed-card--video reveal{% if forloop.counter0 > 0 and forloop.counter0 < 5 %} reveal-d{{ forloop.counter0 }}{% endif %}">
+        <iframe src="{{ v.embed_url }}" title="{{ v.title }}" loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+        <figcaption>{{ v.title }}{% if v.caption %} — {{ v.caption }}{% endif %}</figcaption>
+      </figure>
+      {% empty %}
+      <div class="plate">
+        <span class="plate__glyph" aria-hidden="true">On the cutting table</span>
+        <p>New live footage is being cut now — it premieres here.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section-x section-x--hairline" aria-labelledby="gallery-h">
+  <div class="container">
+    <div class="ex-header">
+      <p class="ex-kicker"><span class="ex-num">03</span> The Wall</p>
+      <h2 class="ex-title" id="gallery-h">Photographs</h2>
+    </div>
+    <div class="gallery-grid">
+      {% for photo in photos %}
+      <button class="gallery-item reveal{% if forloop.counter0 > 0 and forloop.counter0 < 5 %} reveal-d{{ forloop.counter0 }}{% endif %}"
+              data-full="{{ photo.image.url }}"
+              aria-label="View photo{% if photo.title %}: {{ photo.title }}{% endif %}">
+        <img src="{{ photo.image.url }}" alt="{{ photo.title|default:'Nexus Jazz Group' }}"
+             style="object-position: center {{ photo.image_focal_y }}%" loading="lazy" decoding="async">
+      </button>
+      {% empty %}
+      <p class="empty-note">Photos coming soon.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<dialog class="gallery-modal" aria-label="Photo viewer">
+  <img alt="">
+  <button class="modal-close" aria-label="Close">×</button>
+</dialog>
+
+{% endblock %}

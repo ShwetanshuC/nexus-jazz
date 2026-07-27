@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}News — Nexus Jazz Group{% endblock %}
+{% block meta_description %}News, announcements, and press from the Nexus Jazz Group.{% endblock %}
+
+{% block content %}
+
+<div class="news-retro">
+  <header class="page-head">
+    <div class="container">
+      <div class="news-retro__head">
+        <p class="news-retro__kicker">News</p>
+        <h1 class="news-retro__heading">Latest News</h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="section-x section-x--flush" aria-label="News posts">
+    <div class="container">
+      <div class="post-cards post-cards--retro">
+        {% for post in posts %}
+        {% comment %}stagger repeats every three cards — the grid is 3-up, so each
+        ROW cascades left-to-right rather than the delay growing forever.{% endcomment %}
+        <div class="reveal {% cycle '' 'reveal-d1' 'reveal-d2' %}">
+          {% include "blog/_post_card.html" with post=post %}
+        </div>
+        {% empty %}
+        <p class="empty-note">No news yet — the first note lands soon.</p>
+        {% endfor %}
+      </div>
+
+      {% if page_obj.has_other_pages %}
+      <nav class="section-foot" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+        <a class="btn btn--retro" href="?page={{ page_obj.previous_page_number }}">Newer</a>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <a class="btn btn--retro" href="?page={{ page_obj.next_page_number }}">Older</a>
+        {% endif %}
+      </nav>
+      {% endif %}
+
+      <p class="news-retro__end">Between notes, the group posts from the road on
+        {% if site_settings.instagram_url %}<a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% else %}Instagram{% endif %}.
+      </p>
+    </div>
+  </section>
+</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ site_settings.site_name|default:"Nexus Jazz Group" }} — Original Jazz from Charlotte, NC{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Nexus Jazz Group — original music from Charlotte, North Carolina. Sometimes earthy, sometimes bluesy, always progressive. Live dates, music, and booking.{% endblock %}">
+  {% load static %}
+  {% load assets %}{# static_v = static + ?v=<mtime>, so a changed CSS file can never be served stale from cache #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="{% static_v 'css/theme.css' %}">
+  <link rel="stylesheet" href="{% static_v 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static_v 'css/nexus.css' %}">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicGroup",
+    "name": "Nexus Jazz Group",
+    "genre": "Jazz",
+    "foundingDate": "2019",
+    "foundingLocation": "Charlotte, NC",
+    "url": "{{ request.scheme }}://{{ request.get_host }}"
+  }
+  </script>
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% block intro %}{% endblock %}
+  {% include "partials/_nav.html" %}
+
+  {% if site_settings.alert_enabled and site_settings.alert_message %}
+  <div class="alert-banner">{{ site_settings.alert_message }}</div>
+  {% endif %}
+
+  <main class="main-content" id="main">
+    {% if messages %}
+    <div class="container">
+      <div class="messages">
+        {% for message in messages %}
+        <div class="message message--{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "partials/_footer.html" %}
+  <script src="{% static_v 'js/scripts.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+staticfiles/
+.DS_Store
+*.log
+
+# local dev artifacts
+/tmp/
+*.sqlite3-journal
+.claude/
