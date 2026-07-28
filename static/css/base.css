@@ -400,14 +400,17 @@ a:hover { color: var(--color-primary-dark); text-decoration: underline; }
   .nav__links {
     display: none;
     position: absolute;
-    top: 64px;
+    /* Flush against the nav's own bottom edge, whatever its actual height
+       is — the old hardcoded 64px didn't match .nav__inner's real 76px,
+       leaving a gap that showed the page through underneath (the "floating,
+       disconnected" look, 2026-07-28). */
+    top: 100%;
     left: 0;
     right: 0;
     flex-direction: column;
     align-items: stretch;
-    background: var(--color-bg);
-    border-bottom: 1px solid var(--color-border);
-    box-shadow: var(--shadow-md);
+    background: var(--color-secondary);
+    box-shadow: var(--shadow-lg);
     padding: var(--space-4);
     gap: var(--space-1);
   }
@@ -415,6 +418,21 @@ a:hover { color: var(--color-primary-dark); text-decoration: underline; }
   .nav__toggle:checked ~ .nav__links,
   .nav__toggle:checked + .nav__toggle-label + .nav__links {
     display: flex;
+  }
+
+  /* The nav itself is transparent (or a translucent smoked-glass ground)
+     over the hero — fine when it's just showing nav links, but with the
+     dropdown open the transparent bar reads as a separate floating piece
+     from the solid menu below it. Forcing the nav's own ground fully
+     opaque while the menu is open makes the bar and the dropdown read as
+     one connected panel regardless of scroll position. */
+  .nav:has(.nav__toggle:checked)::before {
+    opacity: 1 !important;
+    background: var(--color-secondary) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
   }
 }
 

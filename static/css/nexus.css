@@ -784,6 +784,16 @@ body { transition: background-color calc(var(--beat) * 0.85) var(--ease-out); }
   transition: background var(--t-fast) var(--ease-out);
 }
 .event-rows li:last-child .event-row { border-bottom: 1px solid var(--color-border); }
+/* Home passes up to 3 events; trimmed to 2 on a phone so "On stage next"
+   doesn't add a third full row to an already-long scroll (same complaint
+   as the news cards above — .event-rows--home only matches home's list,
+   never the /events/ index's full schedule). The row that's now visually
+   last needs the closing border :last-child would have given the real
+   (hidden) third row. */
+@media (max-width: 619px) {
+  .event-rows--home li:nth-child(n+3) { display: none; }
+  .event-rows--home li:nth-child(2) .event-row { border-bottom: 1px solid var(--color-border); }
+}
 a.event-row:hover { background: var(--color-surface); text-decoration: none; }
 /* Over the shader background (#live-shader-host), an opaque near-black
    hover fill reads as MORE dark than the vibrant backdrop around it —
@@ -1159,6 +1169,21 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
 }
 @media (min-width: 620px)  { .post-cards { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1000px) { .post-cards { grid-template-columns: repeat(3, 1fr); } }
+
+/* The home page's "Latest News" passes up to 6 posts (2 full rows at the
+   3-column desktop width) — on a single mobile column that's 6 full poster
+   cards to scroll past before reaching anything else on the page. Trim the
+   count to match how many columns are actually on screen, so it's always
+   about one grid "row" deep; "All news" is right there for the rest.
+   .post-cards--home only appears on the home section (see home.html) — the
+   /news/ index page reuses plain .post-cards--retro for its full archive
+   and must never be affected. */
+@media (max-width: 619px) {
+  .post-cards--home > div:nth-child(n+3) { display: none; }
+}
+@media (min-width: 620px) and (max-width: 999px) {
+  .post-cards--home > div:nth-child(n+5) { display: none; }
+}
 .post-card {
   display: flex;
   flex-direction: column;

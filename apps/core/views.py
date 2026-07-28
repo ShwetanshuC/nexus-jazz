@@ -19,8 +19,17 @@ def home(request):
         if feature is None and gp:
             feature = gp[0]
         context["hero_feature"] = feature
+        # About section's mobile-only photo swap (see home.html): needs a shot
+        # that's already close to the card's narrow portrait aspect, so the
+        # crop doesn't lose band members off the sides the way the wide
+        # "full lineup" hero shot did (2026-07-28, user report — two of five
+        # were cropped out entirely on a phone).
+        context["about_mobile_photo"] = next(
+            (p for p in gp if p.title == "Backstage, before the set"), feature
+        )
     except Exception:
         context["hero_feature"] = None
+        context["about_mobile_photo"] = None
     try:
         context["featured_brands"] = list(FeaturedBrand.objects.filter(is_active=True).order_by("sort_order"))
     except Exception:
