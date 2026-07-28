@@ -114,6 +114,13 @@ body { letter-spacing: 0.012em; }
     background: var(--color-secondary);
     border-bottom: 1px solid var(--color-border);
   }
+  /* Desktop gives the CTA a wider button padding + margin-left to set it
+     apart from the plain text links sitting beside it in a horizontal bar —
+     stacked in the mobile dropdown that just reads as "Book the Band"
+     starting further right than every link above it. Match the same
+     left padding as the plain links so all the labels line up on one edge. */
+  .nav__cta { margin-left: 0; }
+  .nav__cta .btn--book { padding-left: var(--space-3); }
 }
 
 /* Book CTA — the one brass moment in the chrome */
