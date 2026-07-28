@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load assets %}
 
 {% block title %}Book the Band — Nexus Jazz Group{% endblock %}
 {% block meta_description %}Book the Nexus Jazz Group for your club, festival, wedding, or private event — trio to full five-piece, based in Charlotte, NC.{% endblock %}
@@ -66,7 +67,7 @@
   </div></div>
 </section>
 
-<section class="section-x" aria-labelledby="faq-h">
+<section class="section-x section-x--tight-top" aria-labelledby="faq-h">
   <div class="container"><div class="prose-col center-col">
     <div class="ex-header center">
       <h2 class="ex-title" id="faq-h">Frequently Asked Questions</h2>
@@ -84,4 +85,8 @@
   </div></div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static_v 'js/date-picker.js' %}" defer></script>
 {% endblock %}
