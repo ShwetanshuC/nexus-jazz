@@ -129,8 +129,8 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
     u_offsetY: 0,
   };
 
+  var mount;
   try {
-    /* eslint-disable no-new */
     /* This 5th arg is ShaderMount's OWN playback speed — it drives u_time,
        separate from (and multiplicative with) the fragment shader's own
        u_speed uniform above. At the old value (0.08) the two multiplied
@@ -140,11 +140,32 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
        against. 1.5 here, combined with u_speed 0.65 and the fragment's
        internal *0.2 damping, drifts through a full slow cycle in ~25-30s —
        visibly alive but "unhurried," matching the brand voice. */
-    new ShaderMount(host, simplexNoiseFragmentShader, uniforms, undefined, 1.5);
+    mount = new ShaderMount(host, simplexNoiseFragmentShader, uniforms, undefined, 1.5);
   } catch (e) {
     console.error(e);
     return;
   }
+
+  /* 2026-07-28: the library's ResizeObserver sizes the WebGL canvas using
+     the entry's `devicePixelContentBoxSize` when the browser reports one
+     ("this.devicePixelsSupported = true" in shader-mount.js) — but that
+     value came back WRONG in testing (reported ~2000×455 device px for a
+     2000×743 CSS-px, 2dpr section, i.e. no dpr multiplier on width and a
+     completely unrelated number for height — roughly 1/8 the pixels the
+     canvas should have). Every resize re-triggers the same bad reading, so
+     the blobs render soft/low-res permanently, not just on first paint.
+     The library's OWN fallback path (plain `window.devicePixelRatio` ×
+     the CSS size from `borderBoxSize`, which reported correctly) is
+     reliable, so force it to always take that path by making
+     devicePixelsSupported permanently read false — the resize handler
+     is unmodified, it just never takes the buggy branch. */
+  try {
+    Object.defineProperty(mount, 'devicePixelsSupported', {
+      get: function () { return false; },
+      set: function () {},
+    });
+    mount.handleResize();
+  } catch (e) {}
 
   /* At full strength the palette's brighter bands (amber/cream) read as a
      blown-out poster and the event rows lose contrast against them — same
