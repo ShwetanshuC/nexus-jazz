@@ -174,7 +174,13 @@
     </div>
     <ul class="event-rows">
       {% for event in upcoming_events %}
-      <li class="reveal{% if not forloop.first %} reveal-d{{ forloop.counter0 }}{% endif %}">
+      {% comment %}No .reveal fade-up here (unlike the rest of the site): this
+      list sits directly over the live WebGL shader canvas, and Safari has
+      known compositing quirks animating opacity/transform over a live canvas
+      layer — reported as the row's text abruptly darkening right as it
+      scrolled into view, exactly when the IntersectionObserver would fire
+      the fade. Removing the transition removes the trigger.{% endcomment %}
+      <li>
         <a class="event-row" href="{% url 'event_detail' event.slug %}">
           <span class="event-row__date">{{ event.date|date:"d" }}<small>{{ event.date|date:"M Y" }}</small></span>
           <span>
@@ -192,7 +198,7 @@
       {% endfor %}
     </ul>
     {% if upcoming_events %}
-    <p class="section-foot reveal"><a class="btn btn--ghost" href="{% url 'events_index' %}">All dates</a></p>
+    <p class="section-foot"><a class="btn btn--ghost" href="{% url 'events_index' %}">All dates</a></p>
     {% endif %}
   </div>
 </section>
@@ -209,6 +215,7 @@
 </section>
 
 <section class="cta-x" aria-labelledby="book-title">
+  <img class="cta-x__art" src="{% static 'img/booking-lineart.png' %}" alt="" aria-hidden="true">
   <div class="container">
     <p class="ex-kicker">Booking</p>
     <h2 id="book-title">Put this band in your room</h2>

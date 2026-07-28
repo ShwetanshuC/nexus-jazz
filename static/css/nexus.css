@@ -753,13 +753,35 @@ body { transition: background-color calc(var(--beat) * 0.85) var(--ease-out); }
 /* Darkens the simplex-noise shader mounted behind this section (see
    live-shader.js) so its brighter bands read as jewel-tones instead of a
    blown-out poster the event text has to fight — same job as the hero's
-   own scrim. Inserted by JS right after the canvas; z-index 0 with no
-   z-index on .container means DOM order (scrim before container) decides
-   paint order, so this stays below the actual content. */
+   own scrim. Inserted by JS right after the canvas. #live-shader-host gets
+   `isolation:isolate` from the shader lib's own injected stylesheet
+   (paper-shaders shader-mount.js), which makes z-index authoritative
+   inside it — so DOM order does NOT decide paint order here, whatever
+   this comment used to say. Under `isolation:isolate`, a non-positioned
+   box like `.container` (z-index:auto) always paints BEFORE any
+   explicitly z-indexed positioned box, even z-index:0 — so a scrim at
+   z-index:0 painted OVER the event-row text instead of under it (the bug:
+   text read as near-black, "readable" only on hover because the hover
+   fill diluted the opaque scrim sitting on top of everything). The
+   canvas itself is z-index:-1 (set by the same injected stylesheet); the
+   scrim has to sit at that same negative tier — behind non-positioned
+   content, above the canvas by DOM order — not at 0. */
 #live-shader-host { position: relative; }
 .live-shader__scrim {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: color-mix(in srgb, var(--color-secondary) 82%, transparent);
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  /* Plain rgba, not color-mix() — Safari has been seen not resolving
+     color-mix() against a custom property until a forced style recalc
+     (e.g. on scroll), so the section briefly paints unscrimmed (full
+     vivid shader colour = "light") before snapping to the real dark
+     value a moment later. Same #0A0908/0.7 either way, just without
+     the recalc dependency. Opacity eased from 0.82 (2026-07-27, third
+     reference pass): the shader's own palette already caps its brightest
+     band (amber) below the event text's cream colour, so the scrim's job
+     is only to knock back saturation/vibrance, not carry all of the
+     legibility work alone — at 0.82 it was crushing the palette's
+     carefully-spaced dark bands into indistinguishable near-black,
+     which read as "no definition" against the reference image. */
+  background: rgba(10, 9, 8, 0.7);
 }
 
 /* ---------- Event rows (exhibition list) ---------- */
@@ -778,10 +800,13 @@ body { transition: background-color calc(var(--beat) * 0.85) var(--ease-out); }
 a.event-row:hover { background: var(--color-surface); text-decoration: none; }
 /* Over the shader background (#live-shader-host), an opaque near-black
    hover fill reads as MORE dark than the vibrant backdrop around it —
-   the opposite of a hover highlight. Lighten instead. */
+   the opposite of a hover highlight. Lighten instead, and also brighten
+   the title itself — a background wash alone over a busy animated photo
+   is easy to miss; the title colour change is the unambiguous signal. */
 #live-shader-host a.event-row:hover {
-  background: color-mix(in srgb, var(--color-text) 14%, transparent);
+  background: rgba(242, 239, 230, 0.3);
 }
+#live-shader-host a.event-row:hover .event-row__title { color: var(--color-primary); }
 .event-row__date {
   font-family: var(--font-heading);
   font-weight: 500;
@@ -829,17 +854,11 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
   .event-row__go { display: none; }
 }
 
-/* ---------- Ivory viewing room (inverse section) ---------- */
-.viewing-room {
-  background: var(--color-inverse-bg);
-  color: var(--color-inverse-text);
-}
-.viewing-room .ex-title,
-.viewing-room .wall-text,
-.viewing-room h2, .viewing-room h3 { color: var(--color-inverse-text); }
-.viewing-room .ex-lede,
-.viewing-room .wall-caption { color: color-mix(in srgb, var(--color-inverse-text) 72%, var(--color-inverse-bg)); }
-.viewing-room .ex-kicker::after { background: color-mix(in srgb, var(--color-inverse-text) 20%, var(--color-inverse-bg)); }
+/* ---------- Listen / Music (kept on the site's night-gallery dark) ----------
+   2026-07-27: this used to be the one ivory "inverse" section; the client asked
+   for booking to be the light section instead and music to stay black, so the
+   inverse treatment moved to .cta-x below. .viewing-room now just takes the
+   page's default dark background/text — no overrides needed. */
 
 /* ---------- Photography: FULL COLOUR everywhere ----------
    The grayscale-at-rest / colour-on-hover duotone was removed 2026-07-27 at the
@@ -1530,13 +1549,20 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
 .form-note { font-size: var(--text-xs); color: var(--color-text-light); }
 label { color: var(--color-text-muted); font-size: var(--text-sm); }
 
-/* ---------- Closing CTA band ---------- */
+/* ---------- Closing CTA band — ivory booking room (inverse section) ----------
+   2026-07-27: swapped to the site's one light section (was .viewing-room,
+   see note above) so Booking reads as the "gallery lobby" against the dark
+   Music room before it. */
 .cta-x {
+  position: relative;
+  background: var(--color-inverse-bg);
+  color: var(--color-inverse-text);
   border-top: 1px solid var(--color-border);
   padding-block: var(--section-y);
   text-align: center;
+  overflow: hidden;
 }
-.cta-x .ex-kicker { justify-content: center; }
+.cta-x .ex-kicker { justify-content: center; color: color-mix(in srgb, var(--color-inverse-text) 72%, var(--color-inverse-bg)); }
 .cta-x .ex-kicker::after { display: none; }
 .cta-x h2 {
   font-family: var(--font-heading);
@@ -1544,13 +1570,38 @@ label { color: var(--color-text-muted); font-size: var(--text-sm); }
   font-size: var(--text-3xl);
   margin: 0 0 var(--space-4);
   text-wrap: balance;
+  color: var(--color-inverse-text);
 }
 .cta-x p {
-  color: var(--color-text-muted);
+  color: color-mix(in srgb, var(--color-inverse-text) 72%, var(--color-inverse-bg));
   max-width: var(--max-width-prose);
   margin: 0 auto var(--space-8);
 }
-.cta-x .hero-x__reassure { margin-top: var(--space-6); }
+.cta-x .hero-x__reassure {
+  margin-top: var(--space-6);
+  color: color-mix(in srgb, var(--color-inverse-text) 60%, var(--color-inverse-bg));
+  text-shadow: none;
+}
+
+/* Line-art quartet, filling the booking room as a quiet backdrop — a hand-drawn
+   touch so the ivory room doesn't read as an empty form landing. Spans the
+   full section (object-fit: contain keeps the drawing's own proportions, so
+   it never stretches or crops) at low opacity so the CTA button still wins
+   the eye over it. */
+.cta-x__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 0;
+}
+.cta-x .container { position: relative; z-index: 1; }
+@media (max-width: 700px) {
+  .cta-x__art { opacity: 0.1; }
+}
 
 /* ---------- Footer ---------- */
 .footer {

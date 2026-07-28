@@ -63,18 +63,32 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
     return out;
   }
 
-  /* Stage-lighting-gel palette, darkest to brightest: the site's own near-
-     black ground, a deep wine/curtain red, brass (the site's one accent),
-     a brighter amber, and cream (the site's light text colour) as the hot
-     highlight — same "dark-to-bright" shape as the reference preset. */
+  /* Rebuilt AGAIN 2026-07-27 (third reference pass): the previous 5-hue,
+     stepsPerColor-2 ramp technically made 9 bands, but auto-lerping RGB
+     straight from crimson to brass crosses too much hue distance in one
+     step — the midpoint is a muddy, nothing-in-particular olive-brown,
+     which is exactly the "no definition" patch visible in that version's
+     screenshot. Switched to 9 HAND-PICKED stops (stepsPerColor 1, no
+     auto-lerp) so every step to the next is a small, deliberate move
+     along one warm ramp — near-black → deep aubergine-wine → wine →
+     wine-crimson → crimson → crimson-orange → brass-brown → brass →
+     amber. Small steps between NEIGHBOURING hues is what produces clean
+     nested rings like the reference instead of a muddy blend; the total
+     span (near-black to amber) is unchanged, so overall mood and the
+     text-legibility cap (peak luminance still at amber, still below the
+     event list's cream text colour) both hold. */
   var base = [
     tokenRgb('--color-bg', '#0E0D0B'),
-    [0.42, 0.11, 0.16],                 // wine/curtain red
-    tokenRgb('--color-primary', '#C29B52'),
-    [0.91, 0.64, 0.24],                 // bright amber
-    tokenRgb('--color-text', '#F2EFE6'),
+    [0.141, 0.063, 0.071],              // deep aubergine-wine
+    [0.231, 0.059, 0.086],              // wine
+    [0.361, 0.071, 0.110],              // wine-crimson
+    [0.490, 0.106, 0.133],              // crimson
+    [0.612, 0.212, 0.125],              // crimson-orange
+    [0.714, 0.353, 0.173],              // brass-brown
+    tokenRgb('--color-primary', '#C29B52'), // brass
+    [0.851, 0.651, 0.235],              // amber, dialed back from the reference's near-white peak
   ];
-  var stepsPerColor = 2;
+  var stepsPerColor = 1;
   var palette = buildPalette(base, stepsPerColor).map(function (c) { return [c[0], c[1], c[2], 1]; });
   var paletteCount = palette.length; // (base.length - 1) * stepsPerColor + 1
   while (palette.length < 10) palette.push(palette[palette.length - 1]);
@@ -82,15 +96,24 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
   var uniforms = {
     u_colors: palette,
     u_colorsCount: paletteCount,
-    /* Slightly softened vs. the reference's hard edge: high-frequency hard
-       edges read as visual noise once real text sits on top, even where
-       character-level contrast technically passes WCAG. u_noiseScale of
-       0.35 (previous pass) made single blobs bigger than the section
-       itself; 0.85 keeps them a readable size — a handful of shapes
-       visible at once, not one wall of one colour. */
-    u_softness: 0.18,
-    u_noiseScale: 0.85,
-    u_speed: 0.5,
+    /* noiseScale brought back down from 11 to 6.5 (2026-07-27, second
+       reference pass): at 11 each "hill" in the field was small enough
+       that it only ever crossed one, maybe two, of the palette's now-9
+       bands before running into the next unrelated hill — no room for
+       the nested-ring definition the reference shows. Lower frequency
+       means bigger hills, and bigger hills have room to climb through
+       several rings before peaking. Softness cut further (0.16 → 0.05):
+       the reference's ring boundaries are razor-edges, not soft blends —
+       a wide edge was smearing adjacent rings into each other, which is
+       most of what read as "no definition." */
+    u_softness: 0.05,
+    u_noiseScale: 6.5,
+    /* 0.65 → 0.39 → 0.234 (2026-07-27): overall morph speed down ~40%,
+       then another ~40% on top (0.39 * 0.6) — this uniform scales `t`
+       directly in the fragment shader, so it's a single-knob way to slow
+       every z-time rate in there proportionally without re-tuning each
+       one individually. */
+    u_speed: 0.234,
     /* object-sizing uniforms the vertex shader requires (shader-sizing.js
        defaults) — u_scale must be 1, not 0, or the object box collapses.
        Distinct from u_noiseScale above (see simplex-noise.js). */
@@ -107,7 +130,16 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
 
   try {
     /* eslint-disable no-new */
-    new ShaderMount(host, simplexNoiseFragmentShader, uniforms, undefined, 0.08);
+    /* This 5th arg is ShaderMount's OWN playback speed — it drives u_time,
+       separate from (and multiplicative with) the fragment shader's own
+       u_speed uniform above. At the old value (0.08) the two multiplied
+       out to a drift so slow it read as completely static within any
+       normal viewing window (2026-07-27, user report) — not a rendering
+       bug, just an over-cautious speed picked with nothing to compare it
+       against. 1.5 here, combined with u_speed 0.65 and the fragment's
+       internal *0.2 damping, drifts through a full slow cycle in ~25-30s —
+       visibly alive but "unhurried," matching the brand voice. */
+    new ShaderMount(host, simplexNoiseFragmentShader, uniforms, undefined, 1.5);
   } catch (e) {
     console.error(e);
     return;
