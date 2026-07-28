@@ -14,6 +14,14 @@ import os
 
 from .settings import *  # noqa: F401,F403
 
+# Hardcoded, not inherited from settings.py's env-var check: that check
+# defaults DEBUG to True if DJANGO_DEBUG is ever unset, and this module
+# previously relied entirely on entrypoint.sh remembering to export
+# DJANGO_DEBUG=false for this app's subshell — one dropped line there
+# would have silently re-enabled DEBUG on a public URL. Never conditional
+# here, matching DockChain's settings_public.py.
+DEBUG = False
+
 # Set by entrypoint.sh to "/preview/<slug>" — no trailing slash, matching
 # Django's own FORCE_SCRIPT_NAME convention.
 FORCE_SCRIPT_NAME = os.environ["PREVIEW_SCRIPT_NAME"]
