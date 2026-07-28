@@ -11,13 +11,11 @@
    60/38 = 1.579s); this value is the no-JS fallback. */
 :root { --beat: 1.579s; }
 
-/* Fold geometry — the two numbers that set how the hero hands off to the about
-   section, kept together because they only make sense as a pair:
-     --hero-peek   how far short of the fold the hero stops (the black strip).
-     --about-crest how much of the about wall title rises INTO that strip, as
-                   the scroll cue. Must stay well under --hero-peek, or the
-                   headline stops reading as a tease and starts looking cut.
-   The about section's top padding is derived: peek − crest. */
+/* --hero-peek: how far short of the fold the hero stops (the black strip).
+   --about-crest is no longer read anywhere (2026-07-28: the about section's
+   wall title, which used to crest into this strip as the scroll cue, moved
+   to the hero subtitle and was removed) — kept only in case a future title
+   returns and wants the same crest. */
 :root {
   --hero-peek: 5rem;
   --about-crest: 1.5rem;
@@ -221,9 +219,7 @@ body { letter-spacing: 0.012em; }
      so the CTAs still clear the fold. --nav-h is defined here and reused
      so the two never drift. */
   --nav-h: 77px;
-  /* Stops --hero-peek short of the fold (defined at the top of this file with
-     --about-crest) so the about title crests into the gap — a real scroll cue,
-     no arrow or bouncing chevron needed. */
+  /* Stops --hero-peek short of the fold, leaving a black strip below. */
   height: calc(100svh - var(--hero-peek));
   margin-top: calc(-1 * var(--nav-h));
   min-height: 34rem;
@@ -232,7 +228,7 @@ body { letter-spacing: 0.012em; }
 }
 /* NB: the hero's next sibling is the Replay button, not the section — an
    adjacent-sibling rule here silently matches nothing. The about section sets
-   its own top padding (see .about), derived from --hero-peek and --about-crest. */
+   its own top padding (see .about). */
 .hero-stage + .section-x { padding-top: var(--section-y); }
 
 /* ---- the stage picture: ONE full-bleed portrait that fills the whole
@@ -566,11 +562,9 @@ body { transition: background-color calc(var(--beat) * 0.85) var(--ease-out); }
 .about {
   position: relative;
   overflow: hidden;                       /* clips the floater's drift */
-  /* Generous below (the section's job is to breathe), measured above: the top
-     padding is peek − crest, so the title rises exactly --about-crest into the
-     black strip left by the hero. Tune the crest at the top of this file — do
-     NOT hardcode a padding here, or the two drift apart. */
-  padding-top: calc(var(--hero-peek) - var(--about-crest));
+  /* No wall title to crest into the hero's black strip anymore (2026-07-28,
+     title moved to the hero subtitle) — plain section padding. */
+  padding-top: var(--section-y);
   padding-bottom: calc(var(--section-y) * 1.35);
 }
 .about__grid {
@@ -584,30 +578,10 @@ body { transition: background-color calc(var(--beat) * 0.85) var(--ease-out); }
     column-gap: clamp(var(--space-16), 8vw, var(--space-32));
     row-gap: var(--space-16);
   }
-  /* The title is a WALL TITLE: its own full-width row above both columns,
-     with a hairline under it. Sitting it inside the copy column made it read
-     as just the first paragraph (user, 2026-07-27). */
-  .about__title { grid-column: 1 / -1; }
 }
 
 /* A short measure is what makes long copy feel calm. */
 .about__copy { max-width: 32rem; }
-.about__title {
-  font-family: var(--font-heading);
-  /* 500 to sit with the hero's "Keenan Harmon" and the site's other display
-     type (.ex-title is 400) — 600 read heavier than anything else on the site */
-  font-weight: 500;
-  /* deliberately close to hero scale — this is the page's second display
-     moment, and it has to out-weigh the body copy by a wide margin */
-  font-size: clamp(2rem, 1.45rem + 2.3vw, 3.35rem);
-  line-height: 1.1;
-  letter-spacing: -0.018em;
-  margin: 0;
-  text-wrap: balance;
-}
-/* Emphasis is COLOUR, never italic — the didone-era italic read dated
-   against the hero's crisp roman type. */
-.about__title-accent { color: var(--color-primary); }
 
 /* Body copy is set in the SERIF (--font-heading, Fraunces) rather than the UI
    sans: Jost at 300 read thin and drab at paragraph length (user, 2026-07-27).

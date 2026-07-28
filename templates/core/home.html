@@ -96,7 +96,7 @@
       </span>
     </h1>
     <div class="hero-stage__lower">
-      <p class="hero-stage__sub">A Charlotte jazz collective exploring the music's far reach in sound and genre — live, and unmistakably alive.</p>
+      <p class="hero-stage__sub">Sometimes earthy, sometimes bluesy — always progressive.</p>
       <div class="hero-stage__actions">
         <a class="btn btn--book" href="{% url 'booking' %}">Book the Band</a>
         <a class="btn btn--ghost" href="{% url 'events_index' %}">Upcoming dates</a>
@@ -109,17 +109,10 @@
 
 <!-- The band's about + info hub. Copy column left, floating portrait right;
      the numbered "01 The Sound" kicker was dropped (2026-07-26) — the
-     statement is the heading now. -->
-<section class="section-x about" id="sound" aria-labelledby="about-title">
+     statement moved to the hero subtitle (2026-07-28) and the wall title
+     is gone, so this section no longer carries the fold's scroll cue. -->
+<section class="section-x about" id="sound" aria-label="About the band">
   <div class="container about__grid">
-    {% comment %}No .reveal here on purpose: this title is the bit that peeks
-    above the fold as the scroll cue, and a reveal would hold it at opacity 0
-    until the observer fires — i.e. the cue would be invisible.{% endcomment %}
-    <h2 class="about__title" id="about-title">
-      Sometimes earthy, sometimes bluesy —<br>
-      <span class="about__title-accent">always progressive.</span>
-    </h2>
-
     <div class="about__copy">
       <p class="about__lede reveal reveal-d1">
         Formed in 2019 by Keenan Harmon for his original music that explores jazz’s far reach in

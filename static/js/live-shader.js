@@ -67,30 +67,30 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
     return out;
   }
 
-  /* Rebuilt AGAIN 2026-07-28 (fourth reference pass, user: "make the blobs
-     more defined and circular like [the reference]"): the smooth monotonic
-     ramp above (each stop only a small step lighter than the last) was
-     never going to produce the reference's crisp nested-ring look, no
-     matter how noise frequency/softness were tuned — LOW CONTRAST BETWEEN
-     NEIGHBOURING BANDS is what made adjacent rings blend into 2-3 visually
-     flat blobs instead of reading as concentric contours. The reference's
-     own palette proves this: it alternates light/dark constantly (pink →
-     purple → red → orange → cream → white, back down again), never
-     drifting smoothly for more than one step. Rebuilt as a ZIGZAG through
-     the same warm brand hues — every stop bounces between a deep and a
-     bright tone — so each ring boundary is a real contrast edge, not a
-     gradient. Still ends at the same amber peak (still under the event
-     list's cream text), so the legibility cap holds. */
+  /* Rebuilt AGAIN 2026-07-28 (fifth pass, user: the zigzag palette below —
+     alternating dark/bright every single stop, at high noise frequency —
+     produced a dense field of small dark roundish holes peppered across a
+     lighter ground. That's a textbook trypophobia trigger (clusters of
+     small holes/bumps), which the user flagged directly by comparing
+     against the reference: the reference has only a FEW large, well-
+     separated dark accents on mostly-continuous lighter ground, not
+     repeated small dark dots everywhere. Two changes fix this: (1) only
+     ONE dark tone in the whole palette (the background itself) instead of
+     three separate "deep" dips, so low noise values connect into large
+     continuous dark channels instead of many isolated small holes; (2)
+     noiseScale dropped hard (10 → 4.5, see below) for a few big islands
+     instead of a dense field of small ones. Ring definition (the ORIGINAL
+     ask) still comes from real contrast between neighbouring stops — that
+     part of the fourth pass was right — it's the REPEATED dark dips and
+     high frequency that caused the trigger pattern, not the contrast
+     itself. */
   var base = [
-    tokenRgb('--color-bg', '#0E0D0B'),   // near-black ground
-    [0.420, 0.110, 0.122],               // crimson (jump up)
-    [0.102, 0.043, 0.055],               // deep aubergine (back down)
-    [0.560, 0.310, 0.145],               // brass-orange (up, dialed back from 0.745 — too much of the
-                                          // frame read bright/loud rather than moody with the old value)
-    [0.196, 0.051, 0.075],               // deep wine (down)
-    [0.560, 0.451, 0.235],               // brass, dialed back from the full token colour for the same reason
-    [0.282, 0.063, 0.090],               // deep wine-crimson (down)
-    [0.851, 0.651, 0.235],               // amber peak (up) — unchanged, still the legibility cap
+    tokenRgb('--color-bg', '#0E0D0B'),   // near-black ground — the ONLY dark stop
+    [0.420, 0.110, 0.122],               // crimson
+    [0.612, 0.212, 0.125],               // crimson-orange
+    [0.714, 0.353, 0.173],               // brass-brown
+    tokenRgb('--color-primary', '#C29B52'), // brass
+    [0.851, 0.651, 0.235],               // amber peak — unchanged, still the legibility cap
   ];
   var stepsPerColor = 1;
   var palette = buildPalette(base, stepsPerColor).map(function (c) { return [c[0], c[1], c[2], 1]; });
@@ -100,13 +100,15 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
   var uniforms = {
     u_colors: palette,
     u_colorsCount: paletteCount,
-    /* noiseScale 6.5 → 10 (2026-07-28, fourth pass, alongside the zigzag
-       palette rewrite above): smaller/denser hills than the third pass
-       used, matching the reference's fairly dense field of blobs rather
-       than a few huge ones. Softness stays low (0.05) — the reference's
-       ring boundaries are razor-edges, not soft blends. */
+    /* noiseScale 10 → 4.5 (2026-07-28, fifth pass): the fourth pass's
+       higher frequency made many small islands, which combined with that
+       pass's alternating-dark palette produced the trypophobia-triggering
+       cluster-of-holes look the user flagged. Lower frequency means fewer,
+       bigger islands — still with clean ring definition inside each one
+       (softness stays low, 0.05, for the same razor-edge boundaries), just
+       not a dense repeated pattern of them. */
     u_softness: 0.05,
-    u_noiseScale: 10,
+    u_noiseScale: 4.5,
     /* 0.65 → 0.39 → 0.234 (2026-07-27): overall morph speed down ~40%,
        then another ~40% on top (0.39 * 0.6) — this uniform scales `t`
        directly in the fragment shader, so it's a single-knob way to slow
