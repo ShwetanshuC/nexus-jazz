@@ -230,6 +230,22 @@ button#toggle-nav-sidebar,
   margin-left: 0 !important;
 }
 
+/* The REAL cause of the off-centre dashboard (2026-07-28): Django's own
+   nav_sidebar.css reserves dead space on the outer `.content` wrapper (a
+   DIFFERENT element from #content below — `#content-start`) whenever `#main`
+   carries its "shifted" class: `.main.shifted > #nav-sidebar + .content {
+   max-width: calc(100% - 299px); }`, sized for the sidebar-toggle button.
+   Our sidebar is permanently `display: none` (never just collapsed), so
+   that reserved 299px is always dead space with nothing reserving it FOR —
+   #content-start ends up 299px narrower than #main, sitting flush left,
+   and our #content below centers correctly but only within that shrunken,
+   off-centre box. Reclaim the full width here instead of chasing it on
+   #content's own margins, which never had the actual problem. */
+.main.shifted > #nav-sidebar + .content,
+.main > #nav-sidebar + .content {
+  max-width: 100%;
+}
+
 #content {
   margin: 0 auto;
   max-width: 1320px;
