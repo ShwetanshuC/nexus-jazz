@@ -67,30 +67,30 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
     return out;
   }
 
-  /* Rebuilt AGAIN 2026-07-27 (third reference pass): the previous 5-hue,
-     stepsPerColor-2 ramp technically made 9 bands, but auto-lerping RGB
-     straight from crimson to brass crosses too much hue distance in one
-     step — the midpoint is a muddy, nothing-in-particular olive-brown,
-     which is exactly the "no definition" patch visible in that version's
-     screenshot. Switched to 9 HAND-PICKED stops (stepsPerColor 1, no
-     auto-lerp) so every step to the next is a small, deliberate move
-     along one warm ramp — near-black → deep aubergine-wine → wine →
-     wine-crimson → crimson → crimson-orange → brass-brown → brass →
-     amber. Small steps between NEIGHBOURING hues is what produces clean
-     nested rings like the reference instead of a muddy blend; the total
-     span (near-black to amber) is unchanged, so overall mood and the
-     text-legibility cap (peak luminance still at amber, still below the
-     event list's cream text colour) both hold. */
+  /* Rebuilt AGAIN 2026-07-28 (fourth reference pass, user: "make the blobs
+     more defined and circular like [the reference]"): the smooth monotonic
+     ramp above (each stop only a small step lighter than the last) was
+     never going to produce the reference's crisp nested-ring look, no
+     matter how noise frequency/softness were tuned — LOW CONTRAST BETWEEN
+     NEIGHBOURING BANDS is what made adjacent rings blend into 2-3 visually
+     flat blobs instead of reading as concentric contours. The reference's
+     own palette proves this: it alternates light/dark constantly (pink →
+     purple → red → orange → cream → white, back down again), never
+     drifting smoothly for more than one step. Rebuilt as a ZIGZAG through
+     the same warm brand hues — every stop bounces between a deep and a
+     bright tone — so each ring boundary is a real contrast edge, not a
+     gradient. Still ends at the same amber peak (still under the event
+     list's cream text), so the legibility cap holds. */
   var base = [
-    tokenRgb('--color-bg', '#0E0D0B'),
-    [0.141, 0.063, 0.071],              // deep aubergine-wine
-    [0.231, 0.059, 0.086],              // wine
-    [0.361, 0.071, 0.110],              // wine-crimson
-    [0.490, 0.106, 0.133],              // crimson
-    [0.612, 0.212, 0.125],              // crimson-orange
-    [0.714, 0.353, 0.173],              // brass-brown
-    tokenRgb('--color-primary', '#C29B52'), // brass
-    [0.851, 0.651, 0.235],              // amber, dialed back from the reference's near-white peak
+    tokenRgb('--color-bg', '#0E0D0B'),   // near-black ground
+    [0.420, 0.110, 0.122],               // crimson (jump up)
+    [0.102, 0.043, 0.055],               // deep aubergine (back down)
+    [0.560, 0.310, 0.145],               // brass-orange (up, dialed back from 0.745 — too much of the
+                                          // frame read bright/loud rather than moody with the old value)
+    [0.196, 0.051, 0.075],               // deep wine (down)
+    [0.560, 0.451, 0.235],               // brass, dialed back from the full token colour for the same reason
+    [0.282, 0.063, 0.090],               // deep wine-crimson (down)
+    [0.851, 0.651, 0.235],               // amber peak (up) — unchanged, still the legibility cap
   ];
   var stepsPerColor = 1;
   var palette = buildPalette(base, stepsPerColor).map(function (c) { return [c[0], c[1], c[2], 1]; });
@@ -100,18 +100,13 @@ import { simplexNoiseFragmentShader } from '../vendor/paper-shaders/shaders/simp
   var uniforms = {
     u_colors: palette,
     u_colorsCount: paletteCount,
-    /* noiseScale brought back down from 11 to 6.5 (2026-07-27, second
-       reference pass): at 11 each "hill" in the field was small enough
-       that it only ever crossed one, maybe two, of the palette's now-9
-       bands before running into the next unrelated hill — no room for
-       the nested-ring definition the reference shows. Lower frequency
-       means bigger hills, and bigger hills have room to climb through
-       several rings before peaking. Softness cut further (0.16 → 0.05):
-       the reference's ring boundaries are razor-edges, not soft blends —
-       a wide edge was smearing adjacent rings into each other, which is
-       most of what read as "no definition." */
+    /* noiseScale 6.5 → 10 (2026-07-28, fourth pass, alongside the zigzag
+       palette rewrite above): smaller/denser hills than the third pass
+       used, matching the reference's fairly dense field of blobs rather
+       than a few huge ones. Softness stays low (0.05) — the reference's
+       ring boundaries are razor-edges, not soft blends. */
     u_softness: 0.05,
-    u_noiseScale: 6.5,
+    u_noiseScale: 10,
     /* 0.65 → 0.39 → 0.234 (2026-07-27): overall morph speed down ~40%,
        then another ~40% on top (0.39 * 0.6) — this uniform scales `t`
        directly in the fragment shader, so it's a single-knob way to slow

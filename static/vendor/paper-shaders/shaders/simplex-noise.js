@@ -139,16 +139,15 @@ void main() {
      established for the (now-removed) xy drift version. */
   float n = snoise(vec3(uv * u_noiseScale, t * 0.45));
 
-  /* A second, higher-frequency evolving field blended in at low strength —
-     small "spots" of extra texture inside the big contour rings, echoing
-     the real component's spot variant. Cut further (0.15 → 0.06): the
-     reference's definition comes from clean NESTED RING edges, and even a
-     "low" 0.15 blend was enough to nudge pixels across a ring boundary
-     unpredictably, softening exactly the crisp edges the ring-count and
-     softness changes above were trying to produce. At 0.06 it still
-     adds a little living texture without eating the ring edges. */
+  /* A second, higher-frequency evolving field, blended in to add living
+     texture inside the big contour rings — echoes the real component's
+     spot variant. Zeroed out (2026-07-28, fourth pass): even a small blend
+     was enough to nudge pixels across a ring boundary unpredictably,
+     softening exactly the crisp edges the reference's clean rings need.
+     Left wired in (mix amount 0.0) rather than deleted, in case a future
+     pass wants a little texture back once the ring definition is solid. */
   float spots = snoise(vec3(uv * u_noiseScale * 2.4, t * 0.7 + 50.0));
-  n = mix(n, spots, 0.06);
+  n = mix(n, spots, 0.0);
 
   n = n * 0.5 + 0.5; // 0..1
 
