@@ -247,6 +247,11 @@ body { letter-spacing: 0.012em; }
   opacity: 1; /* composed default = picture up */
   transition: opacity calc(var(--beat) * 0.85) var(--ease-out); /* fade-up on the last line */
 }
+/* <picture> is inline by default — display:contents drops its own box so the
+   img inside lays out exactly as if it were a direct child (mobile-swap
+   source added 2026-07-28, see home.html). */
+.hero-stage__feature picture,
+.about__frame picture { display: contents; }
 .hero-stage__img {
   position: absolute;
   inset: 0;
@@ -1145,6 +1150,11 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
   /* stacked: cap the picture so it never dominates the card */
   .shots { max-width: 26rem; }
 }
+/* Touch devices need a real hit target — 2.25rem (36px) is under the ~44px
+   minimum, fine with a precise mouse cursor but easy to miss with a thumb. */
+@media (hover: none) {
+  .shots__arrow, .modal-close { width: 2.75rem; height: 2.75rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   .shots.is-live .shots__slide { transition: none; }
 }
@@ -1496,6 +1506,14 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
 .post-cards--retro .post-card__title { color: var(--nr-blue-deep); }
 .post-cards--retro .post-card:hover .post-card__title { color: var(--nr-blue-bright); }
 .post-cards--retro .post-card__excerpt { color: color-mix(in srgb, var(--nr-blue-deep) 78%, transparent); }
+
+/* The blue-duotone-to-colour reveal above is a HOVER micro-interaction — on a
+   touch device there's no hover, so the photo would stay stuck in the blue
+   filter forever. Devices with no hover capability skip the duotone and show
+   the photo in full colour outright instead of a reveal that can never fire. */
+@media (hover: none) {
+  .post-cards--retro .post-card__cover img { filter: none; }
+}
 .post-cards--retro .post-card__more { color: var(--nr-blue-deep); }
 .post-cards--retro .post-card:hover .post-card__more { color: var(--nr-blue-bright); }
 .post-cards--retro .post-card__plate { background: linear-gradient(158deg, var(--nr-blue) 0%, var(--nr-blue-deep) 100%); }

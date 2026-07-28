@@ -63,9 +63,16 @@
     {% if hero_feature %}
     {% comment %}full-bleed hero crop is fixed in CSS (object-position) so every
     face clears the top — decoupled from the model focal, which is tuned for the
-    gallery's square crop.{% endcomment %}
-    <img src="{{ hero_feature.image.url }}" alt="Keenan Harmon and the Nexus Jazz Group"
-         class="hero-stage__img" fetchpriority="high" decoding="async">
+    gallery's square crop. Mobile swaps in the About section's portrait photo
+    (static/img/band-lineup.jpg) instead — a phone viewport is much taller than
+    it is wide, so the portrait crop needs far less cropping to cover it than
+    this landscape shot does; the About section gets this photo's spot in
+    return (see below). Desktop is untouched.{% endcomment %}
+    <picture>
+      <source media="(max-width: 820px)" srcset="{% static 'img/band-lineup.jpg' %}">
+      <img src="{{ hero_feature.image.url }}" alt="Keenan Harmon and the Nexus Jazz Group"
+           class="hero-stage__img" fetchpriority="high" decoding="async">
+    </picture>
     {% elif slide %}
     <img src="{{ slide.image.url }}" alt="Keenan Harmon and the Nexus Jazz Group performing live"
          class="hero-stage__img" style="--hero-focal-y: {% widthratio slide.image_focal_y 1 100 %}%"
@@ -135,9 +142,14 @@
 
     <figure class="about__media reveal reveal-d2">
       <div class="about__frame">
-        <img src="{% static 'img/band-lineup.jpg' %}" width="1200" height="1715"
-             alt="The Nexus Jazz Group — Keenan Harmon seated with trumpet, the band standing behind him"
-             loading="lazy" decoding="async">
+        {% comment %}Mobile swaps in the hero's landscape photo — see the hero
+        picture above for the reasoning; this is the other half of that swap.{% endcomment %}
+        <picture>
+          {% if hero_feature %}<source media="(max-width: 820px)" srcset="{{ hero_feature.image.url }}">{% endif %}
+          <img src="{% static 'img/band-lineup.jpg' %}" width="1200" height="1715"
+               alt="The Nexus Jazz Group — the full five-piece lineup"
+               loading="lazy" decoding="async">
+        </picture>
       </div>
       <figcaption>The full lineup — Charlotte, NC</figcaption>
     </figure>
