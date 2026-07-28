@@ -971,11 +971,10 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
   display: flex; flex-direction: column; gap: var(--space-1);
 }
 .video-link__label {
-  font-size: var(--text-xs);
+  font-size: var(--text-base);
   font-weight: 500;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-text);
+  line-height: var(--leading-tight);
 }
 .video-link__caption { font-size: var(--text-sm); color: var(--color-text-muted); }
 

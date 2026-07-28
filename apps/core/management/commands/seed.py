@@ -228,9 +228,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"  {len(photos)} gallery photos"))
 
         from apps.gallery.models import GalleryVideo
-        if not GalleryVideo.objects.filter(title="Nexus Jazz Group — Live").exists():
+        if not GalleryVideo.objects.filter(title="Latin Tune by Keenan Harmon (with Nexus Jazz)").exists():
             GalleryVideo.objects.create(
-                title="Nexus Jazz Group — Live",
+                title="Latin Tune by Keenan Harmon (with Nexus Jazz)",
                 video_url="https://www.youtube.com/embed/Dp2g6cJ9Gto",
                 sort_order=0,
             )
