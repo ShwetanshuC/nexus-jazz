@@ -1438,6 +1438,10 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
   filter: grayscale(1) sepia(1) hue-rotate(175deg) saturate(2.4) brightness(0.95) contrast(1.05);
   transition: filter var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out);
 }
+/* The article page's own figure is the one full-size photo on the page, not
+   a small thumbnail in a grid — it reads as a real photograph, not a poster
+   card, so it shows full color straight away rather than behind a hover. */
+.article__figure.duo--retro img { filter: none; }
 .duo--retro:hover img,
 .duo--retro:focus-within img {
   filter: none;
@@ -1737,6 +1741,11 @@ body.ivory-page { background: var(--color-inverse-bg); }
 .ivory-page .faq details { border-bottom-color: color-mix(in srgb, var(--color-inverse-text) 18%, var(--color-inverse-bg)); }
 .ivory-page .faq summary { color: var(--color-inverse-text); }
 .ivory-page .faq-a { color: color-mix(in srgb, var(--color-inverse-text) 60%, var(--color-inverse-bg)); }
+/* .btn--ghost is hardcoded for the dark ground (see its own rule) — on this
+   light ground the same colour is near-invisible outline-on-cream (404/500
+   pages' "Back to home"). */
+.ivory-page .btn--ghost { color: var(--color-inverse-text); border-color: color-mix(in srgb, var(--color-inverse-text) 40%, transparent); }
+.ivory-page .btn--ghost:hover { border-color: var(--color-inverse-text); background: color-mix(in srgb, var(--color-inverse-text) 8%, transparent); }
 
 .center-col { margin-inline: auto; }
 

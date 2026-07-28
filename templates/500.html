@@ -1,16 +1,27 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block title %}Server Error on the {{ site_settings.site_name|default:"Nexus Jazz Group" }}{% endblock %}
+{% block body_class %}ivory-page{% endblock %}
 
 {% block content %}
-<div class="section" style="text-align:center;padding:6rem 1.5rem;">
-  <div class="container--prose">
-    <div style="font-size:6rem;margin-bottom:1rem;">500</div>
-    <h1 style="margin-bottom:1rem;">Something Went Wrong</h1>
-    <p style="color:var(--color-text-muted);font-size:1.125rem;margin-bottom:2rem;">
-      We encountered an unexpected error. Our team has been notified and we are working to fix it.
-      Please try again in a few minutes.
-    </p>
-    <a href="/" class="btn btn-primary">Back to Home</a>
+
+<img class="ivory-page__art" src="{% static 'img/booking-lineart.png' %}" alt="" aria-hidden="true">
+
+<header class="page-head">
+  <div class="container">
+    <div class="ex-header center">
+      <p class="ex-kicker">500</p>
+      <h1 class="ex-title">Something went wrong</h1>
+    </div>
   </div>
-</div>
+</header>
+
+<section class="section-x section-x--flush center">
+  <div class="container">
+    <p>We hit an unexpected error and our team has been notified. Please try again in a few minutes.</p>
+    <a href="{% url 'home' %}" class="btn btn--ghost mt-8">Back to home</a>
+  </div>
+</section>
+
 {% endblock %}
