@@ -1,5 +1,9 @@
 /* ============================================================
-   LIVE-SHADER.JS — home page only ("On stage next" section).
+   LIVE-SHADER.JS — mounts behind any #live-shader-host element: the home
+   page's "On stage next" section, and (2026-07-28) the /events/ (Live)
+   index page's full date list, sharing the exact same look and behaviour.
+   Safe to include on any page — it's a no-op if the page has no
+   #live-shader-host.
    Mounts the vendored Paper Shaders engine with a hand-rolled simplex-noise
    fragment shader (static/vendor/paper-shaders/shaders/simplex-noise.js),
    matched to the real @paper-design/shaders-react `SimplexNoise` component

@@ -1,7 +1,12 @@
 {% extends "base.html" %}
+{% load assets %}
 
 {% block title %}Live — Nexus Jazz Group{% endblock %}
 {% block meta_description %}Upcoming live dates for the Nexus Jazz Group — clubs, festivals, and listening rooms across the Carolinas.{% endblock %}
+
+{% block extra_js %}
+  <script type="module" src="{% static_v 'js/live-shader.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 
@@ -16,11 +21,17 @@
   </div>
 </header>
 
-<section class="section-x section-x--flush" aria-label="Upcoming events">
+<section class="section-x section-x--flush" id="live-shader-host" aria-label="Upcoming events">
   <div class="container">
     <ul class="event-rows">
       {% for event in upcoming_events %}
-      <li class="reveal{% if forloop.counter0 > 0 and forloop.counter0 < 5 %} reveal-d{{ forloop.counter0 }}{% endif %}">
+      {% comment %}No .reveal fade-up here (matches home's "On stage next"): this
+      list sits directly over the live WebGL shader canvas, and Safari has known
+      compositing quirks animating opacity/transform over a live canvas layer —
+      the row's text visibly darkens right as it scrolls into view, exactly when
+      the IntersectionObserver would fire the fade. Removing the transition
+      removes the trigger.{% endcomment %}
+      <li>
         <a class="event-row" href="{% url 'event_detail' event.slug %}">
           <span class="event-row__date">{{ event.date|date:"d" }}<small>{{ event.date|date:"M Y" }}</small></span>
           <span>
