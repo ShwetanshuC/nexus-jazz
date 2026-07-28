@@ -27,6 +27,7 @@ grey box.
   <div class="post-card__body">
     <p class="post-card__date">
       <time datetime="{{ post.published_at|date:'Y-m-d' }}">{{ post.published_at|date:"M j, Y" }}</time>
+      · {{ post.reading_time }}
     </p>
     <h3 class="post-card__title">{{ post.title }}</h3>
     {% if post.excerpt %}<p class="post-card__excerpt">{{ post.excerpt }}</p>{% endif %}

@@ -3,10 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}{{ site_settings.site_name|default:"Nexus Jazz Group" }} — Original Jazz from Charlotte, NC{% endblock %}</title>
+  <title>{% block title %}Home of the {{ site_settings.site_name|default:"Nexus Jazz Group" }}{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Nexus Jazz Group — original music from Charlotte, North Carolina. Sometimes earthy, sometimes bluesy, always progressive. Live dates, music, and booking.{% endblock %}">
+  {% block meta_keywords %}{% endblock %}
   {% load static %}
   {% load assets %}{# static_v = static + ?v=<mtime>, so a changed CSS file can never be served stale from cache #}
+
+  {# Favicon — a brass "N" monogram in the site's own display serif, on the
+     night-gallery black (static/img/icons/, generated 2026-07-28). Google
+     shows this next to search results; browsers show it on the tab. #}
+  <link rel="icon" href="{% static 'favicon.ico' %}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/icons/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/icons/favicon-16x16.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/icons/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% static 'site.webmanifest' %}">
+  <meta name="theme-color" content="#0E0D0B">
+
+  {# Open Graph / Twitter card — the full NEXUS / JAZZ GROUP wordmark lockup,
+     shown when a page is shared or linked (static/img/og-image.png). #}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ site_settings.site_name|default:'Nexus Jazz Group' }}">
+  <meta property="og:title" content="{% block og_title %}{{ site_settings.site_name|default:'Nexus Jazz Group' }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ site_settings.tagline|default:'Original music from Charlotte, NC.' }}{% endblock %}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/og-image.png' %}">
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/og-image.png' %}">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="{% static_v 'css/theme.css' %}">
@@ -20,7 +43,8 @@
     "genre": "Jazz",
     "foundingDate": "2019",
     "foundingLocation": "Charlotte, NC",
-    "url": "{{ request.scheme }}://{{ request.get_host }}"
+    "url": "{{ request.scheme }}://{{ request.get_host }}",
+    "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.png' %}"
   }
   </script>
   {% block extra_css %}{% endblock %}

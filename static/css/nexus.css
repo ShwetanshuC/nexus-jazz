@@ -1422,6 +1422,12 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
 .news-retro .article h1,
 .news-retro .article__standfirst { color: var(--nr-cream); }
 .news-retro .article__body { color: color-mix(in srgb, var(--nr-cream) 88%, transparent); }
+/* The retro theme is cream/blue only — no brass — so the tag chips swap out
+   of .tag-chip's default brass to match rather than clash with it. */
+.news-retro .tag-chip {
+  border-color: color-mix(in srgb, var(--nr-cream) 45%, transparent);
+  color: var(--nr-cream);
+}
 .duo--retro {
   border: 3px solid var(--nr-cream);
   border-radius: 0;
@@ -1577,6 +1583,24 @@ a.event-row:hover .event-row__go { color: var(--color-primary); transform: trans
 .article__body { color: var(--color-text-muted); font-size: var(--text-lg); }
 .article__body p { margin: 0 0 var(--space-6); }
 .article__figure { margin-bottom: var(--space-8); }
+.article__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: var(--space-2) 0 var(--space-10);
+  padding: 0;
+}
+.tag-chip {
+  padding: 0.35em 0.9em;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
 
 /* ---------- Interior page head ---------- */
 .page-head { padding: var(--space-24) 0 var(--space-12); }
