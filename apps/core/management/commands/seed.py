@@ -227,4 +227,13 @@ class Command(BaseCommand):
                 attach(photo, "image", filename)
         self.stdout.write(self.style.SUCCESS(f"  {len(photos)} gallery photos"))
 
+        from apps.gallery.models import GalleryVideo
+        if not GalleryVideo.objects.filter(title="Nexus Jazz Group — Live").exists():
+            GalleryVideo.objects.create(
+                title="Nexus Jazz Group — Live",
+                video_url="https://www.youtube.com/embed/Dp2g6cJ9Gto",
+                sort_order=0,
+            )
+        self.stdout.write(self.style.SUCCESS("  1 gallery video"))
+
         self.stdout.write(self.style.SUCCESS("\nSeeded. Sample records are marked — replace via admin."))
