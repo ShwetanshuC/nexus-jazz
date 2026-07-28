@@ -1,0 +1,33 @@
+name: Auto-deploy to preview
+
+# Every push to main here bumps the submodule pointer in
+# shwetanshuc-portfolio to this commit and pushes it — which triggers that
+# repo's own "Deploy to Lightsail" workflow, so the unlisted preview at
+# /preview/<slug>/ goes live within a couple minutes of any commit here,
+# no manual submodule-bump step needed.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout shwetanshuc-portfolio
+        uses: actions/checkout@v4
+        with:
+          repository: ShwetanshuC/shwetanshuc-portfolio
+          token: ${{ secrets.PORTFOLIO_PUSH_TOKEN }}
+
+      - name: Point the nexus-jazz submodule at this commit
+        run: |
+          git config user.name "nexus-jazz-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git update-index --cacheinfo 160000,${{ github.sha }},nexus-jazz
+          if git diff --cached --quiet; then
+            echo "Portfolio already at this commit — nothing to do."
+          else
+            git commit -m "Auto-bump nexus-jazz preview to ${{ github.sha }}"
+            git push
+          fi
