@@ -1654,6 +1654,49 @@ label { color: var(--color-text-muted); font-size: var(--text-sm); }
   .cta-x__art { opacity: 0.1; }
 }
 
+/* ---------- Contact — the one all-white page, huge line-art backdrop ----------
+   Same booking-lineart.png as the homepage's ivory CTA room (.cta-x__art), but
+   blown up to fill the whole page rather than sit inside one section — the
+   entire page is the "ivory room" here. Text/form colors mirror the .cta-x
+   inverse-token pattern above so this reuses the site's one light palette
+   instead of inventing new colors. */
+body.contact-page { background: var(--color-inverse-bg); }
+.contact-page .page-head,
+.contact-page .section-x { position: relative; z-index: 1; }
+.contact-page .ex-title {
+  color: var(--color-inverse-text);
+  font-size: clamp(3rem, 2rem + 5vw, 6rem);
+}
+.contact-page .form-control {
+  background: color-mix(in srgb, var(--color-inverse-bg) 92%, var(--color-inverse-text));
+  border-color: color-mix(in srgb, var(--color-inverse-text) 22%, var(--color-inverse-bg));
+  color: var(--color-inverse-text);
+}
+.contact-page .form-control::placeholder { color: color-mix(in srgb, var(--color-inverse-text) 45%, var(--color-inverse-bg)); }
+.contact-page .form-control:focus {
+  background: color-mix(in srgb, var(--color-inverse-bg) 92%, var(--color-inverse-text));
+  color: var(--color-inverse-text);
+}
+.contact-page label { color: color-mix(in srgb, var(--color-inverse-text) 70%, var(--color-inverse-bg)); }
+.contact-page .form-note { color: color-mix(in srgb, var(--color-inverse-text) 55%, var(--color-inverse-bg)); }
+.contact-page .main-content p { color: var(--color-inverse-text); }
+/* Nav has no dark ground to sit on at the top of this page (it only grounds
+   after a little scroll) — force it on so the ivory-on-ivory links stay legible. */
+.contact-page .nav::before { opacity: 1; }
+
+.contact-page__art {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.center-col { margin-inline: auto; }
+
 /* ---------- Footer ---------- */
 .footer {
   background: var(--color-secondary);

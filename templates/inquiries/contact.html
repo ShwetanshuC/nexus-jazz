@@ -1,24 +1,24 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Contact — Nexus Jazz Group{% endblock %}
-{% block meta_description %}Get in touch with the Nexus Jazz Group — press, collaborations, and everything that isn't a booking.{% endblock %}
+{% block meta_description %}Get in touch with the Nexus Jazz Group.{% endblock %}
+{% block body_class %}contact-page{% endblock %}
 
 {% block content %}
 
+<img class="contact-page__art" src="{% static 'img/booking-lineart.png' %}" alt="" aria-hidden="true">
+
 <header class="page-head">
   <div class="container">
-    <div class="ex-header">
-      <p class="ex-kicker">Contact</p>
-      <h1 class="ex-title">Say hello</h1>
-      <p class="ex-lede">Press, collaborations, or just a word after a show.
-        Booking an event? Use the <a href="{% url 'booking' %}">booking form</a> —
-        it asks the right questions.</p>
+    <div class="ex-header center">
+      <h1 class="ex-title">Hello</h1>
     </div>
   </div>
 </header>
 
 <section class="section-x section-x--flush" aria-label="Contact form">
-  <div class="container"><div class="prose-col">
+  <div class="container"><div class="prose-col center-col">
     <form method="post" novalidate>
       {% csrf_token %}
       {{ form.website }}
@@ -51,7 +51,6 @@
       </div>
 
       <button type="submit" class="btn btn--book">Send message</button>
-      <p class="form-note">Goes straight to the band — replies usually within two days.</p>
     </form>
 
     {% if site_settings.email %}
