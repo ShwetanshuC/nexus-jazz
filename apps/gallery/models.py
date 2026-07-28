@@ -44,10 +44,15 @@ class GalleryVideo(models.Model):
         # Handle youtu.be shortlinks
         if "youtu.be/" in url:
             video_id = url.split("youtu.be/")[-1].split("?")[0]
-            return f"https://www.youtube.com/embed/{video_id}"
+            return f"https://www.youtube-nocookie.com/embed/{video_id}"
         # Handle youtube.com/watch?v=
         if "youtube.com/watch" in url:
-            return url.replace("watch?v=", "embed/").split("&")[0]
+            return url.replace("watch?v=", "embed/").split("&")[0].replace(
+                "www.youtube.com/embed/", "www.youtube-nocookie.com/embed/"
+            )
+        # Handle youtube.com/embed/ links (including pasted embed codes)
+        if "youtube.com/embed/" in url and "youtube-nocookie.com" not in url:
+            return url.replace("www.youtube.com/embed/", "www.youtube-nocookie.com/embed/")
         # Handle Vimeo
         if "vimeo.com/" in url:
             video_id = url.rstrip("/").split("/")[-1]
