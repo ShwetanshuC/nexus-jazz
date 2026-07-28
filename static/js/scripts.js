@@ -86,12 +86,38 @@
 (() => {
   const dlg = document.querySelector('.gallery-modal');
   if (!dlg) return;
-  document.querySelectorAll('.gallery-item').forEach(b => b.addEventListener('click', () => {
-    const img = dlg.querySelector('img');
+  const items = Array.from(document.querySelectorAll('.gallery-item'));
+  if (!items.length) return;
+
+  const img = dlg.querySelector('img');
+  const prevBtn = dlg.querySelector('.modal-nav--prev');
+  const nextBtn = dlg.querySelector('.modal-nav--next');
+  let index = 0;
+
+  const show = i => {
+    index = (i + items.length) % items.length;
+    const b = items[index];
     img.src = b.dataset.full;
     img.alt = b.getAttribute('aria-label') || '';
+  };
+
+  items.forEach((b, i) => b.addEventListener('click', () => {
+    show(i);
     dlg.showModal();
   }));
+
+  if (items.length > 1) {
+    prevBtn.addEventListener('click', e => { e.stopPropagation(); show(index - 1); });
+    nextBtn.addEventListener('click', e => { e.stopPropagation(); show(index + 1); });
+    dlg.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') show(index - 1);
+      else if (e.key === 'ArrowRight') show(index + 1);
+    });
+  } else {
+    prevBtn.hidden = true;
+    nextBtn.hidden = true;
+  }
+
   dlg.querySelector('.modal-close').addEventListener('click', () => dlg.close());
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
 })();
