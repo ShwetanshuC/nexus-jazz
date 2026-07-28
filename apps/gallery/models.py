@@ -37,27 +37,39 @@ class GalleryVideo(models.Model):
         return self.title
 
     @property
-    def embed_url(self):
-        url = self.video_url
-        if not url:
-            return url
-        # Handle youtu.be shortlinks
+    def youtube_id(self):
+        url = self.video_url or ""
         if "youtu.be/" in url:
-            video_id = url.split("youtu.be/")[-1].split("?")[0]
-            return f"https://www.youtube-nocookie.com/embed/{video_id}"
-        # Handle youtube.com/watch?v=
+            return url.split("youtu.be/")[-1].split("?")[0]
         if "youtube.com/watch" in url:
-            return url.replace("watch?v=", "embed/").split("&")[0].replace(
-                "www.youtube.com/embed/", "www.youtube-nocookie.com/embed/"
-            )
-        # Handle youtube.com/embed/ links (including pasted embed codes)
-        if "youtube.com/embed/" in url and "youtube-nocookie.com" not in url:
-            return url.replace("www.youtube.com/embed/", "www.youtube-nocookie.com/embed/")
-        # Handle Vimeo
-        if "vimeo.com/" in url:
-            video_id = url.rstrip("/").split("/")[-1]
-            return f"https://player.vimeo.com/video/{video_id}"
-        return url
+            from urllib.parse import urlparse, parse_qs
+            return parse_qs(urlparse(url).query).get("v", [None])[0]
+        if "youtube.com/embed/" in url:
+            return url.split("youtube.com/embed/")[-1].split("?")[0]
+        return None
+
+    @property
+    def watch_url(self):
+        """Where the card links out to — plain YouTube/Vimeo watch page.
+
+        Some videos restrict embedding to an approved domain list (a
+        Content ID / rights-holder setting, invisible from the oEmbed
+        "allow embedding" flag) and throw YouTube's opaque error 153 in
+        an iframe. Linking out instead of embedding sidesteps that.
+        """
+        video_id = self.youtube_id
+        if video_id:
+            return f"https://www.youtube.com/watch?v={video_id}"
+        return self.video_url
+
+    @property
+    def thumbnail_url(self):
+        if self.thumbnail:
+            return self.thumbnail.url
+        video_id = self.youtube_id
+        if video_id:
+            return f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+        return ""
 
 
 class AudioEmbed(models.Model):

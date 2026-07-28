@@ -22,12 +22,18 @@
     </div>
     <div class="embed-grid">
       {% for v in videos %}
-      <figure class="embed-card embed-card--video reveal{% if forloop.counter0 > 0 and forloop.counter0 < 5 %} reveal-d{{ forloop.counter0 }}{% endif %}">
-        <iframe src="{{ v.embed_url }}" title="{{ v.title }}" loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen></iframe>
-        {% if v.caption %}<figcaption>{{ v.caption }}</figcaption>{% endif %}
-      </figure>
+      <a class="embed-card embed-card--video video-link reveal{% if forloop.counter0 > 0 and forloop.counter0 < 5 %} reveal-d{{ forloop.counter0 }}{% endif %}"
+         href="{{ v.watch_url }}" target="_blank" rel="noopener noreferrer"
+         aria-label="Watch {{ v.title }} on YouTube">
+        <span class="video-link__thumb">
+          {% if v.thumbnail_url %}<img src="{{ v.thumbnail_url }}" alt="" loading="lazy" decoding="async">{% endif %}
+          <span class="video-link__play" aria-hidden="true"></span>
+        </span>
+        <span class="video-link__meta">
+          <span class="video-link__label">Watch on YouTube</span>
+          {% if v.caption %}<span class="video-link__caption">{{ v.caption }}</span>{% endif %}
+        </span>
+      </a>
       {% empty %}
       <div class="plate">
         <span class="plate__glyph" aria-hidden="true">On the cutting table</span>
