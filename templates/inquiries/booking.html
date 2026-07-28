@@ -1,23 +1,24 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Book the Band — Nexus Jazz Group{% endblock %}
 {% block meta_description %}Book the Nexus Jazz Group for your club, festival, wedding, or private event — trio to full five-piece, based in Charlotte, NC.{% endblock %}
+{% block body_class %}ivory-page{% endblock %}
 
 {% block content %}
 
+<img class="ivory-page__art" src="{% static 'img/booking-lineart.png' %}" alt="" aria-hidden="true">
+
 <header class="page-head">
   <div class="container">
-    <div class="ex-header">
-      <p class="ex-kicker">Booking</p>
-      <h1 class="ex-title">Put this band in your room</h1>
-      <p class="ex-lede">Tell us the date, the place, and the occasion. The set is shaped
-        to the room — from a trio to the full five-piece band, self-contained sound if you need it.</p>
+    <div class="ex-header center">
+      <h1 class="ex-title">Bookings</h1>
     </div>
   </div>
 </header>
 
 <section class="section-x section-x--flush" aria-label="Booking form">
-  <div class="container"><div class="prose-col">
+  <div class="container"><div class="prose-col center-col">
     <form method="post" novalidate>
       {% csrf_token %}
       {{ form.website }}
@@ -65,11 +66,10 @@
   </div></div>
 </section>
 
-<section class="section-x section-x--hairline" aria-labelledby="faq-h">
-  <div class="container"><div class="prose-col">
-    <div class="ex-header">
-      <p class="ex-kicker">Good to know</p>
-      <h2 class="ex-title" id="faq-h">Common questions</h2>
+<section class="section-x" aria-labelledby="faq-h">
+  <div class="container"><div class="prose-col center-col">
+    <div class="ex-header center">
+      <h2 class="ex-title" id="faq-h">Frequently Asked Questions</h2>
     </div>
     <div class="faq">
       {% for item in faqs %}

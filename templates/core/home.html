@@ -14,12 +14,13 @@
        visits (this session) get the finished hero immediately.
 
        TEMPO: the sequence runs on a musical beat. One phase per beat, so
-       BPM is the single speed dial — 38 BPM (60/38 = 1.579s per line), the
-       tempo the client settled on 2026-07-27. Override with ?bpm=NN if it ever
-       needs re-tuning (the dev slider panel was removed once 38 was chosen). NOTE: --beat also drives the CSS fade durations, so
+       BPM is the single speed dial — 44 BPM (60/44 = 1.364s per line), the
+       tempo the client settled on 2026-07-28 (was 38). Override with
+       ?bpm=NN if it ever needs re-tuning (the dev slider panel was removed
+       once 38 was chosen). NOTE: --beat also drives the CSS fade durations, so
        one number re-times cues AND fades together. */
     (function () {
-      window.HERO_BPM_DEFAULT = 38;
+      window.HERO_BPM_DEFAULT = 44;
       try {
         var bpm = window.HERO_BPM_DEFAULT;
         var q = /[?&]bpm=(\d+(?:\.\d+)?)/.exec(location.search);
@@ -40,9 +41,18 @@
         set(0);                                    /* curtain down */
         /* welcome → name → everything (group line, picture, chrome) one beat
            apart. Phase 3 IS the finished hero — nothing fades in after it. */
+        var timers = [];
         [1, 2, 3].forEach(function (phase) {
-          setTimeout(function () { set(phase); }, beat * phase);
+          timers.push(setTimeout(function () { set(phase); }, beat * phase));
         });
+        /* Exposed so the "Skip intro" button (hero-intro.js, which loads
+           later and isn't in the DOM yet at this point in <body>) can jump
+           straight to the finished hero instead of waiting out the rest of
+           these timers. */
+        window.__heroIntroSkip = function () {
+          timers.forEach(clearTimeout);
+          set(3);
+        };
         try { sessionStorage.setItem('heroIntroSeen', '1'); } catch (e) {}
       } catch (e) {}
     })();
@@ -105,7 +115,14 @@
   </div>
   {% endwith %}
 </header>
-<button class="hero-stage__replay" id="hero-replay" type="button">↻ Replay intro</button>
+{% comment %}Doubles as "Skip intro" while data-phase is 0/1/2 (the label
+     swap is pure CSS, keyed off data-phase, so there's no JS race showing
+     the wrong label for a frame — see .hero-stage__replay-label /
+     ::after in nexus.css). hero-intro.js reads data-phase at click time
+     to decide skip vs. replay.{% endcomment %}
+<button class="hero-stage__replay" id="hero-replay" type="button">
+  <span class="hero-stage__replay-label">↻ Replay intro</span>
+</button>
 
 <!-- The band's about + info hub. Copy column left, floating portrait right;
      the numbered "01 The Sound" kicker was dropped (2026-07-26) — the

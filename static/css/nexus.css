@@ -424,6 +424,15 @@ body { letter-spacing: 0.012em; }
   color: var(--color-primary);
   border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
 }
+/* Doubles as "Skip intro" while the intro is actually playing (phases 0–2) —
+   pure CSS swap keyed off data-phase, so the label is never wrong for a
+   frame the way a JS-driven swap could be on a slow load. hero-intro.js
+   reads data-phase at click time to jump straight to phase 3 instead of
+   restarting. Unlike the rest of "chrome" this button is NOT hidden during
+   those phases (see the phase block below) — it needs to stay visible and
+   clickable to actually work as a skip control. */
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__replay-label { display: none; }
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__replay::after { content: "⏭ Skip intro"; }
 
 /* =============== PHASE / INTRO ===============
    No data-phase attribute → the FINISHED hero: picture up, type + chrome in,
@@ -465,7 +474,6 @@ body { letter-spacing: 0.012em; }
    afterwards (user, 2026-07-26). */
 .nav { transition: opacity calc(var(--beat) * 0.85) var(--ease-out); }
 :root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__lower { opacity: 0; }
-:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__replay { opacity: 0; pointer-events: none; }
 :root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .nav {
   opacity: 0;
   pointer-events: none;
@@ -1646,37 +1654,43 @@ label { color: var(--color-text-muted); font-size: var(--text-sm); }
   .cta-x__art { opacity: 0.1; }
 }
 
-/* ---------- Contact — the one all-white page, huge line-art backdrop ----------
+/* ---------- Ivory room — the all-white page style, huge line-art backdrop ----
    Same booking-lineart.png as the homepage's ivory CTA room (.cta-x__art), but
    blown up to fill the whole page rather than sit inside one section — the
    entire page is the "ivory room" here. Text/form colors mirror the .cta-x
    inverse-token pattern above so this reuses the site's one light palette
-   instead of inventing new colors. */
-body.contact-page { background: var(--color-inverse-bg); }
-.contact-page .page-head,
-.contact-page .section-x { position: relative; z-index: 1; }
-.contact-page .ex-title {
+   instead of inventing new colors. Shared by Contact and Booking (2026-07-28) —
+   both are single-column form pages, so they carry the exact same treatment. */
+body.ivory-page { background: var(--color-inverse-bg); }
+.ivory-page .page-head,
+.ivory-page .section-x { position: relative; z-index: 1; }
+/* Only the page's own h1 gets the huge treatment — Booking's FAQ section also
+   has an .ex-title (its "Common questions" h2), which must stay sub-heading
+   scale, so this is scoped to .page-head rather than every .ex-title. */
+.ivory-page .page-head .ex-title {
   color: var(--color-inverse-text);
   font-size: clamp(3rem, 2rem + 5vw, 6rem);
 }
-.contact-page .form-control {
+.ivory-page .form-control {
   background: color-mix(in srgb, var(--color-inverse-bg) 92%, var(--color-inverse-text));
   border-color: color-mix(in srgb, var(--color-inverse-text) 22%, var(--color-inverse-bg));
   color: var(--color-inverse-text);
 }
-.contact-page .form-control::placeholder { color: color-mix(in srgb, var(--color-inverse-text) 45%, var(--color-inverse-bg)); }
-.contact-page .form-control:focus {
+.ivory-page .form-control::placeholder { color: color-mix(in srgb, var(--color-inverse-text) 45%, var(--color-inverse-bg)); }
+.ivory-page .form-control:focus {
   background: color-mix(in srgb, var(--color-inverse-bg) 92%, var(--color-inverse-text));
   color: var(--color-inverse-text);
 }
-.contact-page label { color: color-mix(in srgb, var(--color-inverse-text) 70%, var(--color-inverse-bg)); }
-.contact-page .form-note { color: color-mix(in srgb, var(--color-inverse-text) 55%, var(--color-inverse-bg)); }
-.contact-page .main-content p { color: var(--color-inverse-text); }
+.ivory-page label { color: color-mix(in srgb, var(--color-inverse-text) 70%, var(--color-inverse-bg)); }
+.ivory-page .main-content p { color: var(--color-inverse-text); }
+/* Extra class beyond .main-content p's own specificity, so this wins over the
+   general paragraph rule above instead of losing to it. */
+.ivory-page .main-content .form-note { color: color-mix(in srgb, var(--color-inverse-text) 55%, var(--color-inverse-bg)); }
 /* Nav has no dark ground to sit on at the top of this page (it only grounds
    after a little scroll) — force it on so the ivory-on-ivory links stay legible. */
-.contact-page .nav::before { opacity: 1; }
+.ivory-page .nav::before { opacity: 1; }
 
-.contact-page__art {
+.ivory-page__art {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -1686,6 +1700,13 @@ body.contact-page { background: var(--color-inverse-bg); }
   pointer-events: none;
   z-index: 0;
 }
+
+/* Booking's FAQ accordion sits on the ivory ground too — .faq's default
+   colors are tuned for the dark ground (see its own rule block), so they need
+   light-ground counterparts here rather than a second component. */
+.ivory-page .faq details { border-bottom-color: color-mix(in srgb, var(--color-inverse-text) 18%, var(--color-inverse-bg)); }
+.ivory-page .faq summary { color: var(--color-inverse-text); }
+.ivory-page .faq-a { color: color-mix(in srgb, var(--color-inverse-text) 60%, var(--color-inverse-bg)); }
 
 .center-col { margin-inline: auto; }
 
@@ -1772,6 +1793,7 @@ body.contact-page { background: var(--color-inverse-bg); }
 .container--prose { max-width: var(--max-width-prose); margin-inline: auto; padding-inline: var(--container-pad); }
 .center { text-align: center; }
 .center .ex-kicker { justify-content: center; }
+.center .ex-kicker::after { display: none; }
 .center .ex-title, .center .ex-lede { margin-inline: auto; }
 .mt-8 { margin-top: var(--space-8); }
 .section-foot { margin-top: var(--space-12); }

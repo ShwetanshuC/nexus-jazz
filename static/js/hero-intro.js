@@ -7,10 +7,13 @@
    file only ADDS polish:
      1. Measures each announced line's centre and parks its follow-spot
         exactly on it (CSS falls back to sensible % positions without it).
-     2. Wires the "Replay intro" control.
+     2. Wires the "Replay intro" control — which doubles as "Skip intro"
+        while the intro is actually playing (2026-07-28); the label swap
+        itself is pure CSS (data-phase-keyed), this file only decides what
+        a click DOES.
    (A dev BPM slider lived here while the tempo was being chosen; it was
-   removed 2026-07-27 once the client settled on 38 BPM. ?bpm=NN still works
-   for one-off checks.)
+   removed 2026-07-27 once the client settled on 38 BPM, later retuned to
+   44. ?bpm=NN still works for one-off checks.)
    Everything here is optional — if it never runs, the hero still plays
    and still composes correctly.
    ============================================================ */
@@ -52,7 +55,7 @@
 
   // One beat = one announced line; BPM is the single speed dial (set by the
   // inline script in home.html, which also writes --beat for the CSS fades).
-  function bpm() { return window.HERO_BPM || window.HERO_BPM_DEFAULT || 38; }
+  function bpm() { return window.HERO_BPM || window.HERO_BPM_DEFAULT || 44; }
   var timers = [];
   function play(rate) {
     timers.forEach(clearTimeout);
@@ -68,10 +71,29 @@
     });
   }
 
+  // Same button doubles as "Skip intro" while the intro is actually playing
+  // (label swap is pure CSS, see .hero-stage__replay-label in nexus.css) —
+  // read data-phase fresh at click time rather than caching it, since it
+  // changes on its own every beat.
+  function introPlaying() {
+    var phase = root.getAttribute('data-phase');
+    return phase === '0' || phase === '1' || phase === '2';
+  }
+
   var replay = document.getElementById('hero-replay');
   if (replay && !reduce) {
     replay.addEventListener('click', function (e) {
       e.preventDefault();
+      if (introPlaying()) {
+        // Jump straight to the finished hero. Prefer the inline script's
+        // own timers (window.__heroIntroSkip) so a skip during the very
+        // first page load — before this deferred script's own `play()`
+        // has ever run — clears the timers that are actually pending,
+        // instead of leaving them to fire redundant set() calls later.
+        if (window.__heroIntroSkip) window.__heroIntroSkip();
+        else { timers.forEach(clearTimeout); root.setAttribute('data-phase', '3'); }
+        return;
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
       play(bpm());
     });
