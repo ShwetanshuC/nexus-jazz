@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 from django.shortcuts import redirect
-from .models import SiteSettings, HeroSlide, FeaturedBrand, HomeSectionCard, FAQ, SiteVisitCounter
+from .models import SiteSettings, HeroSlide, FAQ, SiteVisitCounter
 
 # ---------------------------------------------------------------------------
 # Custom AdminSite
@@ -66,45 +66,6 @@ class HeroSlideAdmin(admin.ModelAdmin):
             )
         return "-"
     image_preview.short_description = "Preview"
-
-
-# ---------------------------------------------------------------------------
-# FeaturedBrand
-# ---------------------------------------------------------------------------
-@admin.register(FeaturedBrand)
-class FeaturedBrandAdmin(admin.ModelAdmin):
-    list_display = ["sort_order", "name", "logo_preview", "color_swatch", "is_active"]
-    list_editable = ["sort_order", "is_active"]
-    list_display_links = ["name"]
-    ordering = ["sort_order"]
-
-    def logo_preview(self, obj):
-        if obj.logo:
-            return format_html(
-                '<img src="{}" style="height:40px;object-fit:contain">',
-                obj.logo.url,
-            )
-        return "-"
-    logo_preview.short_description = "Logo"
-
-    def color_swatch(self, obj):
-        return format_html(
-            '<span style="display:inline-block;width:24px;height:24px;'
-            'background:{};border:1px solid #ccc;border-radius:4px"></span>',
-            obj.logo_color,
-        )
-    color_swatch.short_description = "Color"
-
-
-# ---------------------------------------------------------------------------
-# HomeSectionCard
-# ---------------------------------------------------------------------------
-@admin.register(HomeSectionCard)
-class HomeSectionCardAdmin(admin.ModelAdmin):
-    list_display = ["sort_order", "title", "subtitle", "link_url", "is_active"]
-    list_editable = ["sort_order", "is_active"]
-    list_display_links = ["title"]
-    ordering = ["sort_order"]
 
 
 # ---------------------------------------------------------------------------

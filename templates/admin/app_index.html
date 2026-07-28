@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ app_list.0.name }} — Site Manager{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div class="mt-cms" style="--mt-font-brand:'Fraunces',Georgia,serif; --mt-accent:#C29B52;">
+  <p style="margin:0 0 4px;">
+    <a href="{% url 'admin:index' %}" style="color:var(--mt-accent,#C29B52); font-weight:600; text-decoration:none; font-size:13px;">&larr; Dashboard</a>
+  </p>
+  <h1 style="margin:0 0 8px; font-family:'Fraunces',Georgia,serif; color:#F2EFE6; font-size:clamp(1.6rem,2.5vw,2.2rem); font-weight:600;">
+    {{ app_list.0.name }}
+  </h1>
+  <div id="content-main">
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+  </div>
+</div>
+{% endblock %}

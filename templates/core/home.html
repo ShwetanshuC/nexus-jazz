@@ -14,13 +14,35 @@
        visits (this session) get the finished hero immediately.
 
        TEMPO: the sequence runs on a musical beat. One phase per beat, so
-       BPM is the single speed dial — 44 BPM (60/44 = 1.364s per line), the
-       tempo the client settled on 2026-07-28 (was 38). Override with
-       ?bpm=NN if it ever needs re-tuning (the dev slider panel was removed
-       once 38 was chosen). NOTE: --beat also drives the CSS fade durations, so
-       one number re-times cues AND fades together. */
+       BPM is the single speed dial — 44 BPM (60/44 = 1.364s per line) on
+       desktop, the tempo the client settled on 2026-07-28 (was 38). On
+       mobile (<=820px, matching the hero's own breakpoint) it runs at
+       64 BPM instead — noticeably snappier, since a slow multi-second
+       curtain read fine full-bleed on desktop but felt sluggish on a phone
+       screen the visitor is already scrolling. Override with ?bpm=NN if it
+       ever needs re-tuning (the dev slider panel was removed once 38 was
+       chosen). NOTE: --beat also drives the CSS fade durations, so one
+       number re-times cues AND fades together.
+
+       SKIP MEMORY: a `heroIntroSeen` cookie (180 days), not sessionStorage —
+       sessionStorage resets every time a mobile browser tab is recreated
+       (which happens far more often than on desktop: backgrounding Safari,
+       reopening from a bookmark, etc.), so mobile visitors kept seeing the
+       full intro replay on nearly every visit. The cookie persists across
+       those the same way on both mobile and desktop. */
     (function () {
-      window.HERO_BPM_DEFAULT = 44;
+      function getCookie(name) {
+        var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+        return m ? decodeURIComponent(m[1]) : null;
+      }
+      function setCookie(name, value, maxAgeSeconds) {
+        try {
+          document.cookie = name + '=' + encodeURIComponent(value) + '; max-age=' + maxAgeSeconds + '; path=/; SameSite=Lax';
+        } catch (e) {}
+      }
+
+      var isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
+      window.HERO_BPM_DEFAULT = isMobile ? 64 : 44;
       try {
         var bpm = window.HERO_BPM_DEFAULT;
         var q = /[?&]bpm=(\d+(?:\.\d+)?)/.exec(location.search);
@@ -34,8 +56,7 @@
         root.style.setProperty('--beat', (beat / 1000).toFixed(3) + 's');
 
         var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var seen = false;
-        try { seen = !!sessionStorage.getItem('heroIntroSeen'); } catch (e) {}
+        var seen = getCookie('heroIntroSeen') === '1';
         if (reduce || seen) return;               /* composed default shows */
         var set = function (p) { root.setAttribute('data-phase', String(p)); };
         set(0);                                    /* curtain down */
@@ -53,7 +74,7 @@
           timers.forEach(clearTimeout);
           set(3);
         };
-        try { sessionStorage.setItem('heroIntroSeen', '1'); } catch (e) {}
+        setCookie('heroIntroSeen', '1', 60 * 60 * 24 * 180);
       } catch (e) {}
     })();
   </script>

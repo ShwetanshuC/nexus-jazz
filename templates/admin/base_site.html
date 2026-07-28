@@ -63,14 +63,7 @@
 
 {% block extrahead %}
   {{ block.super }}
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
-  <link rel="stylesheet" href="{% static 'css/admin-image-cropping.css' %}?v=1">
-  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
-  <script defer src="{% static 'js/admin-image-cropping.js' %}?v=1"></script>
   <script defer src="{% static 'js/admin-focal-point-picker.js' %}?v=1"></script>
-  <script defer src="{% static 'js/admin-promotion-ux.js' %}?v=1"></script>
-  <script defer src="{% static 'js/admin-promotion-blocks.js' %}?v=1"></script>
 
   <style>
     /* Top nav links */
@@ -79,7 +72,7 @@
       align-items: center;
       gap: 0;
       min-height: 42px;
-      font-family: var(--mt-font-brand, "Cormorant Garamond", Georgia, serif) !important;
+      font-family: var(--mt-font-brand, "Fraunces", Georgia, serif) !important;
       font-size: 18px !important;
       font-weight: 700 !important;
       line-height: 1 !important;
@@ -88,7 +81,7 @@
     .mt-topnav-link:link,
     .mt-topnav-link:visited {
       color: rgba(255,255,255,0.7) !important;
-      font-family: var(--mt-font-brand, "Cormorant Garamond", Georgia, serif) !important;
+      font-family: var(--mt-font-brand, "Fraunces", Georgia, serif) !important;
       font-size: 18px !important;
       font-weight: 700 !important;
       display: inline-flex;
@@ -157,80 +150,6 @@
         if (input && !input.disabled) input.focus({ preventScroll: true });
       }, 40);
     }
-  });
-  </script>
-
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    if (typeof Sortable === 'undefined') return;
-    var sidebar = document.getElementById('nav-sidebar');
-    if (!sidebar) return;
-    var firstMod = sidebar.querySelector('.module');
-    if (!firstMod) return;
-    var modsContainer = firstMod.parentElement;
-
-    // Restore saved group order
-    var GROUP_KEY = 'mt_sidebar_order';
-    (function restoreGroupOrder() {
-      var saved = localStorage.getItem(GROUP_KEY);
-      if (!saved) return;
-      var names; try { names = JSON.parse(saved); } catch (e) { return; }
-      names.forEach(function (name) {
-        var mods = modsContainer.querySelectorAll('.module');
-        for (var i = 0; i < mods.length; i++) {
-          var a = mods[i].querySelector('caption a');
-          if (a && a.textContent.trim() === name) { modsContainer.appendChild(mods[i]); break; }
-        }
-      });
-    })();
-
-    // Inject drag handles on captions
-    modsContainer.querySelectorAll('.module caption').forEach(function (cap) {
-      if (cap.querySelector('.mt-sidebar-drag-handle')) return;
-      var handle = document.createElement('span');
-      handle.className = 'mt-sidebar-drag-handle';
-      handle.title = 'Drag to reorder section';
-      handle.style.cssText = 'display:inline-block;width:10px;height:10px;flex-shrink:0;cursor:grab;opacity:0.35;transition:opacity 0.15s;background-image:radial-gradient(circle,var(--mt-muted,#8C7D74) 1.2px,transparent 1.2px);background-size:4px 4px;background-repeat:repeat;border-radius:2px;margin-right:6px;';
-      cap.insertBefore(handle, cap.firstChild);
-    });
-
-    // Group-level sortable
-    Sortable.create(modsContainer, {
-      handle: '.mt-sidebar-drag-handle',
-      animation: 150,
-      ghostClass: 'mt-sidebar-ghost',
-      onEnd: function () {
-        var names = Array.from(modsContainer.querySelectorAll('.module caption a')).map(function (a) { return a.textContent.trim(); });
-        localStorage.setItem(GROUP_KEY, JSON.stringify(names));
-      },
-    });
-
-    // Row-level sortable within each group
-    var ROW_KEY_PREFIX = 'mt_sidebar_rows_';
-    modsContainer.querySelectorAll('.module').forEach(function (mod) {
-      var tbody = mod.querySelector('tbody');
-      if (!tbody) return;
-      if (tbody.querySelectorAll('tr').length < 2) return;
-      var groupName = (mod.querySelector('caption a') || {}).textContent || '';
-      var savedRows = localStorage.getItem(ROW_KEY_PREFIX + groupName);
-      if (savedRows) {
-        try {
-          JSON.parse(savedRows).forEach(function (href) {
-            var link = tbody.querySelector('tr a[href="' + href + '"]');
-            if (link) tbody.appendChild(link.closest('tr'));
-          });
-        } catch (e) {}
-      }
-      Sortable.create(tbody, {
-        animation: 150,
-        ghostClass: 'mt-sidebar-row-ghost',
-        dragClass: 'mt-sidebar-row-dragging',
-        onEnd: function () {
-          var hrefs = Array.from(tbody.querySelectorAll('tr td:first-child a')).map(function (a) { return a.getAttribute('href'); });
-          localStorage.setItem(ROW_KEY_PREFIX + groupName, JSON.stringify(hrefs));
-        },
-      });
-    });
   });
   </script>
 

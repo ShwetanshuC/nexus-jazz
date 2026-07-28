@@ -1,11 +1,16 @@
 {% extends "base.html" %}
+{% load assets %}
 
 {% block title %}{{ event.title }} with the Nexus Jazz Group{% endblock %}
 {% block meta_description %}{{ event.title }} — {{ event.date|date:"F j, Y" }}{% if event.location %} at {{ event.location }}{% endif %}. Nexus Jazz Group, live.{% endblock %}
 
+{% block extra_js %}
+  <script type="module" src="{% static_v 'js/live-shader.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 
-<article class="section-x page-head">
+<article class="section-x page-head" id="live-shader-host">
   <div class="container article">
     <p class="article__meta">
       <time datetime="{{ event.date|date:'Y-m-d' }}">{{ event.date|date:"l, F j, Y" }}</time>

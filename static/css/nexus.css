@@ -439,7 +439,7 @@ body { letter-spacing: 0.012em; }
    those phases (see the phase block below) — it needs to stay visible and
    clickable to actually work as a skip control. */
 :root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__replay-label { display: none; }
-:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__replay::after { content: "⏭ Skip intro"; }
+:root:is([data-phase="0"], [data-phase="1"], [data-phase="2"]) .hero-stage__replay::after { content: "Skip intro"; }
 
 /* =============== PHASE / INTRO ===============
    No data-phase attribute → the FINISHED hero: picture up, type + chrome in,
