@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}News from the Nexus Jazz Group{% endblock %}
-{% block meta_description %}News, announcements, and press from the Nexus Jazz Group.{% endblock %}
+{% block title %}Blog — Nexus Jazz Group{% endblock %}
+{% block meta_description %}Notes, announcements, and press from the Nexus Jazz Group.{% endblock %}
 
 {% block content %}
 
@@ -9,13 +9,13 @@
   <header class="page-head">
     <div class="container">
       <div class="news-retro__head">
-        <p class="news-retro__kicker">News</p>
-        <h1 class="news-retro__heading">Latest News</h1>
+        <p class="news-retro__kicker">Blog</p>
+        <h1 class="news-retro__heading">The Blog</h1>
       </div>
     </div>
   </header>
 
-  <section class="section-x section-x--flush" aria-label="News posts">
+  <section class="section-x section-x--flush" aria-label="Blog posts">
     <div class="container">
       <div class="post-cards post-cards--retro">
         {% for post in posts %}
@@ -25,7 +25,7 @@
           {% include "blog/_post_card.html" with post=post %}
         </div>
         {% empty %}
-        <p class="empty-note">No news yet — the first note lands soon.</p>
+        <p class="empty-note">No posts yet — the first note lands soon.</p>
         {% endfor %}
       </div>
 

@@ -192,7 +192,7 @@
 <section class="section-x news-retro" aria-labelledby="news-title">
   <div class="container">
     <div class="news-retro__head">
-      <h2 class="news-retro__heading reveal" id="news-title">Latest News</h2>
+      <h2 class="news-retro__heading reveal" id="news-title">From the Blog</h2>
     </div>
 
     <div class="post-cards post-cards--retro post-cards--home">
@@ -201,12 +201,12 @@
         {% include "blog/_post_card.html" with post=post %}
       </div>
       {% empty %}
-      <p class="empty-note">No news yet — the first note lands soon.</p>
+      <p class="empty-note">No posts yet — the first note lands soon.</p>
       {% endfor %}
     </div>
 
     {% if featured_posts %}
-    <p class="section-foot reveal"><a class="btn btn--retro" href="{% url 'blog_index' %}">All news</a></p>
+    <p class="section-foot reveal"><a class="btn btn--retro" href="{% url 'blog_index' %}">All posts</a></p>
     {% endif %}
   </div>
 </section>

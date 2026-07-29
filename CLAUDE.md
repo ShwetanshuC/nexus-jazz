@@ -133,7 +133,7 @@ Client Django site, bootstrapped from master-template on 2026-07-12. Root pipeli
 |---|---|
 | Django package | `nexus_jazz` |
 | Apps kept | accounts, core, blog (news), gallery, events, team, inquiries |
-| Public pages | home · band/ (The Band) · media/ (Music & Media) · news/ · events/ (+ booking form) · inquiries/contact/ |
+| Public pages | home · band/ (The Band) · media/ (Music & Media) · blog/ (Blog) · events/ (+ booking form) · inquiries/contact/ |
 | Deploy target | TBD (contract: SSL + handover; decide at launch) |
 | Domain | TBD |
 
@@ -237,6 +237,17 @@ Client Django site, bootstrapped from master-template on 2026-07-12. Root pipeli
   .post-card__title`) so the title isn't printed twice — keep the element for heading semantics.
   Post detail gained a serif `.article__standfirst` (the excerpt) so the story opens on the promise
   the card made. Home numbering is now 01 News · 02 Live · 03 Listen.
+- **"News" renamed to "Blog" site-wide** (2026-07-29, user-directed). Nav, footer, home section
+  heading ("From the Blog"), the index page (kicker/H1 now "Blog"/"The Blog", page title,
+  meta description), post-detail's "All posts" link, the post-card's no-category fallback tag,
+  and the admin dashboard card all say Blog now, not News. The public URL moved from `/news/` to
+  `/blog/` (`nexus_jazz/urls.py`) to match — no redirect was added since the site isn't launched
+  yet (no real domain, no external links to break). The `apps.blog` app, its models
+  (`BlogPost`/`BlogCategory`/`BlogTag`), the `blog_index`/`blog_detail`/etc. URL names, and the
+  `news-retro`/`.news-retro__*` CSS class names were already named for the app, not the page, so
+  none of that needed touching — only user-facing copy and the URL prefix changed. A `BlogCategory`
+  named "News" still exists as sample taxonomy DATA (a post can be filed under a "News" category
+  on the Blog) — that's content, not site chrome, and was left alone.
 - **The Band = five players + a per-player modal** (2026-07-27, user-directed). The page shows
   exactly the five the client named — Rich Graham, Casey Mink, Leo Gayosso, Evan Corey,
   Denise Harding — with bios pasted **verbatim from the client; do not rewrite or extend them**.

@@ -7,7 +7,7 @@ from django.http import HttpResponse
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("apps.core.urls")),
-    path("news/", include("apps.blog.urls")),
+    path("blog/", include("apps.blog.urls")),
     path("media/", include("apps.gallery.urls")),
     path("events/", include("apps.events.urls")),
     path("band/", include("apps.team.urls")),

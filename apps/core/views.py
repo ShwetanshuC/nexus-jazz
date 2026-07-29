@@ -38,7 +38,7 @@ def home(request):
         context["section_cards"] = list(HomeSectionCard.objects.filter(is_active=True).order_by("sort_order"))
     except Exception:
         context["section_cards"] = []
-    # Featured news: the six most recent published posts, shown as covers.
+    # Featured blog posts: the six most recent published posts, shown as covers.
     try:
         from apps.blog.models import BlogPost
         context["featured_posts"] = list(

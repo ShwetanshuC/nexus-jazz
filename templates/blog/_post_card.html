@@ -1,6 +1,6 @@
 {% comment %}
-Poster card for one news post — used by BOTH the home "News" section and the
-news index, so the two can never drift. Expects `post`.
+Poster card for one blog post — used by BOTH the home "Blog" section and the
+blog index, so the two can never drift. Expects `post`.
 
 The cover is the card: a photo when the post has one, otherwise a TYPE POSTER
 (record-sleeve treatment — brass label, the title set large on black). Posts
@@ -21,7 +21,7 @@ grey box.
     </div>
     {% endif %}
     <span class="post-card__wash" aria-hidden="true"></span>
-    <span class="post-card__tag">{% if post.category %}{{ post.category.name }}{% else %}News{% endif %}</span>
+    <span class="post-card__tag">{% if post.category %}{{ post.category.name }}{% else %}Blog{% endif %}</span>
   </div>
 
   <div class="post-card__body">
