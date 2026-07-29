@@ -11,6 +11,11 @@ class MasterAdminSite(admin.AdminSite):
     site_header = "Site Manager"
     site_title = "Site Manager"
     index_title = "Dashboard"
+    # site_url is left at AdminSite's own default ("/"): each_context()
+    # already substitutes request.META["SCRIPT_NAME"] whenever site_url is
+    # still "/", which is what correctly resolves Django's built-in "View
+    # site" link under a subpath mount (e.g. the preview deploy's
+    # /preview/<slug>/ via FORCE_SCRIPT_NAME) — no override needed here.
 
     def each_context(self, request):
         context = super().each_context(request)

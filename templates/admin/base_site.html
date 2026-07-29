@@ -57,7 +57,7 @@
   <div id="mt-top-nav">
     <a href="{% url 'admin:index' %}" class="mt-topnav-link">Dashboard</a>
     <a href="{% url 'admin:inquiries_contactinquiry_changelist' %}" class="mt-topnav-link">Inbox</a>
-    <a href="/" target="_blank" rel="noopener" class="mt-topnav-link">View Site &nearr;</a>
+    <a href="{% url 'home' %}" target="_blank" rel="noopener" class="mt-topnav-link">View Site &nearr;</a>
   </div>
 {% endblock %}
 
