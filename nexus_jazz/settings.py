@@ -62,6 +62,7 @@ MIDDLEWARE = [
     "apps.core.middleware.AdminLoginThrottleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "apps.core.middleware.PublicVisitCounterMiddleware",
+    "apps.core.middleware.AdminNoindexMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",

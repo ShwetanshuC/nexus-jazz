@@ -58,6 +58,18 @@ def home(request):
     return render(request, "core/home.html", context)
 
 
+def robots_txt(request):
+    # Keeps the admin (and its login page) out of search results and off
+    # crawlers' radar — it's a private, password-protected content-management
+    # area, not a public page. Search engines that already indexed a URL
+    # from before this existed can still show it until they recrawl and see
+    # the Disallow; the X-Robots-Tag header on every /admin/ response
+    # (AdminNoindexMiddleware) additionally tells any bot NOT to index a page
+    # it does fetch, which is the belt to this robots.txt suspenders.
+    lines = ["User-agent: *", "Disallow: /admin/"]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
+
+
 def handler404(request, exception=None):
     return render(request, "404.html", status=404)
 

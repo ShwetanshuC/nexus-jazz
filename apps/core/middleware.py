@@ -33,6 +33,24 @@ def _get_client_ip(request) -> str:
     return request.META.get("REMOTE_ADDR", "0.0.0.0")
 
 
+class AdminNoindexMiddleware:
+    """Tags every /admin/ response noindex, nofollow — belt to robots.txt's
+    suspenders (see robots_txt() in apps/core/views.py). robots.txt only
+    stops well-behaved crawlers from ever FETCHING the page; a page that's
+    already linked from somewhere (or fetched before robots.txt existed) can
+    still get indexed unless the response itself says not to. A header does
+    that regardless of how the bot found the URL."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if request.path_info.startswith("/admin/"):
+            response["X-Robots-Tag"] = "noindex, nofollow"
+        return response
+
+
 class PublicVisitCounterMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

@@ -4,8 +4,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
 
+from apps.core.views import robots_txt
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("robots.txt", robots_txt),
     path("", include("apps.core.urls")),
     path("blog/", include("apps.blog.urls")),
     path("media/", include("apps.gallery.urls")),
