@@ -1,0 +1,168 @@
+name: 🚀  Deployment
+on:
+  push:
+    branches: [ "main" ]
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_LIGHTSAIL_SERVICE_NAME: djangoapp
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+
+  buildnginx:
+    name: 🌎 building nginx webserver
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 🏢 Install Lightsail plugin
+        run: |
+          curl -fsSL "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o lightsailctl
+          sudo mv lightsailctl /usr/local/bin/lightsailctl && sudo chmod +x /usr/local/bin/lightsailctl
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: 🧹 Prune old nginx images
+        run: |
+          aws lightsail get-container-images \
+            --service-name ${{ env.AWS_LIGHTSAIL_SERVICE_NAME }} \
+            --output json \
+          | python3 - <<'PYEOF'
+          import json, sys, subprocess
+          data = json.load(sys.stdin)
+          images = [
+            img["image"] for img in data.get("containerImages", [])
+            if ".nginx." in img.get("image", "")
+          ]
+          # Keep the most recent 1; delete the rest
+          for img in images[1:]:
+            print(f"Deleting old image: {img}")
+            subprocess.run(
+              ["aws", "lightsail", "delete-container-image",
+               "--service-name", "${{ env.AWS_LIGHTSAIL_SERVICE_NAME }}",
+               "--image", img],
+              check=False
+            )
+          PYEOF
+        continue-on-error: true
+      - name: 📦 Collect static files
+        run: |
+          pip3 install -r requirements.txt
+          DJANGO_SECRET_KEY=build-placeholder python3 manage.py collectstatic --noinput
+      - name: 🐳 Build nginx image
+        run: docker build -t nginx:latest -f ./AWS/nginx/Dockerfile .
+      - name: 📬 Push nginx to Lightsail
+        run: |
+          aws lightsail push-container-image \
+            --region ${{ env.AWS_REGION }} \
+            --service-name ${{ env.AWS_LIGHTSAIL_SERVICE_NAME }} \
+            --label nginx \
+            --image nginx:latest
+
+  builddjango:
+    name: 🚧 Building Django
+    runs-on: ubuntu-latest
+    needs: [buildnginx]
+    steps:
+      - uses: actions/checkout@v3
+      - name: 🏢 Install Lightsail plugin
+        run: |
+          curl -fsSL "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o lightsailctl
+          sudo mv lightsailctl /usr/local/bin/lightsailctl && sudo chmod +x /usr/local/bin/lightsailctl
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: 🧹 Prune old django images
+        run: |
+          aws lightsail get-container-images \
+            --service-name ${{ env.AWS_LIGHTSAIL_SERVICE_NAME }} \
+            --output json \
+          | python3 - <<'PYEOF'
+          import json, sys, subprocess
+          data = json.load(sys.stdin)
+          images = [
+            img["image"] for img in data.get("containerImages", [])
+            if ".django." in img.get("image", "")
+          ]
+          # Keep the most recent 1; delete the rest
+          for img in images[1:]:
+            print(f"Deleting old image: {img}")
+            subprocess.run(
+              ["aws", "lightsail", "delete-container-image",
+               "--service-name", "${{ env.AWS_LIGHTSAIL_SERVICE_NAME }}",
+               "--image", img],
+              check=False
+            )
+          PYEOF
+        continue-on-error: true
+      - name: 🐳 Build django image
+        run: docker build -t django:latest .
+      - name: 📬 Push django to Lightsail
+        run: |
+          aws lightsail push-container-image \
+            --region ${{ env.AWS_REGION }} \
+            --service-name ${{ env.AWS_LIGHTSAIL_SERVICE_NAME }} \
+            --label django \
+            --image django:latest
+      - name: ⏳ Wait for Lightsail service to be ready
+        run: |
+          echo "Waiting for any in-progress deployment to finish..."
+          for i in $(seq 1 30); do
+            STATE=$(aws lightsail get-container-services \
+              --service-name ${{ env.AWS_LIGHTSAIL_SERVICE_NAME }} \
+              --query 'containerServices[0].state' --output text)
+            echo "State: $STATE"
+            if [ "$STATE" = "RUNNING" ] || [ "$STATE" = "DISABLED" ]; then
+              echo "Service ready."
+              break
+            fi
+            sleep 30
+          done
+      - name: 🚀 Deploy containers with secrets injected
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_ALLOWED_HOSTS: ${{ secrets.DJANGO_ALLOWED_HOSTS }}
+          DJANGO_CSRF_TRUSTED_ORIGINS: ${{ secrets.DJANGO_CSRF_TRUSTED_ORIGINS }}
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          S3_AWS_STORAGE_BUCKET_NAME: ${{ secrets.S3_AWS_STORAGE_BUCKET_NAME }}
+          AWS_REGION_VAL: ${{ env.AWS_REGION }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, subprocess
+          containers = {
+            "django": {
+              "image": ":djangoapp.django.latest",
+              "ports": {"8000": "HTTP"},
+              "environment": {
+                "DJANGO_SECRET_KEY": os.environ["DJANGO_SECRET_KEY"],
+                "DJANGO_ALLOWED_HOSTS": os.environ.get("DJANGO_ALLOWED_HOSTS", ""),
+                "DJANGO_CSRF_TRUSTED_ORIGINS": os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", ""),
+                "S3_ACCESS_KEY": os.environ["S3_ACCESS_KEY"],
+                "S3_SECRET_KEY": os.environ["S3_SECRET_KEY"],
+                "S3_AWS_STORAGE_BUCKET_NAME": os.environ["S3_AWS_STORAGE_BUCKET_NAME"],
+                "AWS_REGION": os.environ.get("AWS_REGION_VAL", "us-east-1"),
+                "DJANGO_DEBUG": "0",
+              }
+            },
+            "nginx": {
+              "image": ":djangoapp.nginx.latest",
+              "ports": {"80": "HTTP"}
+            }
+          }
+          with open("/tmp/containers.json", "w") as f:
+              json.dump(containers, f)
+          EOF
+          aws lightsail create-container-service-deployment \
+            --service-name ${{ env.AWS_LIGHTSAIL_SERVICE_NAME }} \
+            --containers file:///tmp/containers.json \
+            --public-endpoint file://AWS/publicendpoint.json

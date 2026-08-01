@@ -27,6 +27,16 @@ SECRET_KEY = _secret
 _hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 ALLOWED_HOSTS = [h.strip() for h in _hosts.split(",") if h.strip()]
 
+# Without this, admin logins and form POSTs 403 the moment the site is
+# reached through a real domain instead of localhost — Django only trusts
+# the Origin header against this explicit list, ALLOWED_HOSTS isn't enough.
+_csrf_origins = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = (
+    [o.strip() for o in _csrf_origins.split(",") if o.strip()]
+    if _csrf_origins
+    else ["https://*.amazonlightsail.com"]
+)
+
 # ---------------------------------------------------------------------------
 # APPLICATIONS
 # ---------------------------------------------------------------------------
@@ -41,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     # Third-party
     "colorfield",
+    "storages",
     # Project apps
     "apps.accounts",
     "apps.core",
@@ -154,6 +165,19 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# S3 media storage — only activates when S3_AWS_STORAGE_BUCKET_NAME is set
+# (the Lightsail container deploy). Local dev keeps using the filesystem
+# backend above. See AWS_DEPLOY_GUIDE.md.
+_s3_bucket = os.environ.get("S3_AWS_STORAGE_BUCKET_NAME")
+if _s3_bucket:
+    AWS_ACCESS_KEY_ID = os.environ.get("S3_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("S3_SECRET_KEY")
+    AWS_STORAGE_BUCKET_NAME = _s3_bucket
+    AWS_S3_REGION_NAME = os.environ.get("AWS_REGION", "us-east-1")
+    AWS_QUERYSTRING_AUTH = False
+    AWS_S3_FILE_OVERWRITE = False
+    STORAGES["default"] = {"BACKEND": "nexus_jazz.storage.ResizingS3Storage"}
 
 # ---------------------------------------------------------------------------
 # STATIC & MEDIA

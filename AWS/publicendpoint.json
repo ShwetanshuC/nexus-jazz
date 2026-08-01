@@ -1,0 +1,12 @@
+{
+  "containerName": "nginx",
+  "containerPort": 80,
+  "healthCheck": {
+    "healthyThreshold": 2,
+    "unhealthyThreshold": 10,
+    "timeoutSeconds": 30,
+    "intervalSeconds": 60,
+    "path": "/healthcheck",
+    "successCodes": "200-299"
+  }
+}

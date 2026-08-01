@@ -57,3 +57,36 @@ class ResizingFileSystemStorage(FileSystemStorage):
         if ext and "." in name:
             name = name.rsplit(".", 1)[0] + ext
         return super()._save(name, new_content)
+
+
+def _make_resizing_s3():
+    try:
+        from storages.backends.s3boto3 import S3Boto3Storage
+    except ImportError:
+        return None
+
+    class ResizingS3Storage(S3Boto3Storage):
+        def _save(self, name, content):
+            new_content, ext = _process(content)
+            if ext and "." in name:
+                name = name.rsplit(".", 1)[0] + ext
+            saved_name = super()._save(name, new_content)
+            # Mirror to local disk so nginx serves it instantly, no S3 round-trip.
+            try:
+                from pathlib import Path
+                from django.conf import settings
+                local_path = Path(settings.MEDIA_ROOT) / saved_name
+                local_path.parent.mkdir(parents=True, exist_ok=True)
+                new_content.seek(0)
+                local_path.write_bytes(new_content.read())
+            except Exception:
+                pass
+            return saved_name
+
+    return ResizingS3Storage
+
+
+try:
+    ResizingS3Storage = _make_resizing_s3()
+except Exception:
+    ResizingS3Storage = None
