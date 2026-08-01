@@ -42,6 +42,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Identity", {"fields": ("site_name", "tagline")}),
         ("Contact", {"fields": ("phone_display", "phone_tel", "email", "address", "hours", "map_embed_url")}),
+        ("Calendar", {"fields": ("calendar_url", "calendar_embed_code")}),
         ("Social Media", {"fields": ("facebook_url", "instagram_url", "youtube_url", "twitter_url", "linkedin_url")}),
         ("Site Alert", {"fields": ("alert_enabled", "alert_message", "alert_color")}),
     )

@@ -1,21 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .models import Event, EventCategory
+from .models import Event
 
 
 def index(request):
-    today = timezone.now().date()
-    upcoming = Event.objects.filter(date__gte=today, is_active=True).order_by("date")
-    featured = Event.objects.filter(is_featured=True, is_active=True).first()
-    categories = EventCategory.objects.all()
-    context = {
-        "upcoming_events": upcoming,
-        "featured_event": featured,
-        "categories": categories,
-    }
-    return render(request, "events/list.html", context)
+    # The schedule is a Google Calendar embed now (SiteSettings.calendar_url /
+    # calendar_embed_code, via the site_settings context processor) — nothing
+    # from the Event model to query here anymore.
+    return render(request, "events/list.html")
 
 
 def detail(request, slug):

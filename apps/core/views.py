@@ -47,14 +47,6 @@ def home(request):
         )
     except Exception:
         context["featured_posts"] = []
-    try:
-        from django.utils import timezone
-        from apps.events.models import Event
-        context["upcoming_events"] = list(
-            Event.objects.filter(date__gte=timezone.now().date(), is_active=True).order_by("date")[:3]
-        )
-    except Exception:
-        context["upcoming_events"] = []
     return render(request, "core/home.html", context)
 
 

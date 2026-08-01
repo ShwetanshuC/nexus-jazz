@@ -778,85 +778,23 @@ body { transition: background-color calc(var(--beat) * 0.85) var(--ease-out); }
   background: rgba(10, 9, 8, 0.7);
 }
 
-/* ---------- Event rows (exhibition list) ---------- */
-.event-rows { list-style: none; margin: 0; padding: 0; }
-.event-row {
-  display: grid;
-  grid-template-columns: 6rem 1fr auto;
-  align-items: baseline;
-  gap: var(--space-6);
-  padding: var(--space-6) var(--space-8);
-  border-top: 1px solid var(--color-border);
-  text-decoration: none;
-  transition: background var(--t-fast) var(--ease-out);
+/* ---------- Calendar embed (the /events/ "Live" page — a Google Calendar
+   iframe, not a hand-entered event list) ---------- */
+.calendar-embed {
+  margin-top: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-surface);
 }
-.event-rows li:last-child .event-row { border-bottom: 1px solid var(--color-border); }
-/* Home passes up to 3 events; trimmed to 2 on a phone so "On stage next"
-   doesn't add a third full row to an already-long scroll (same complaint
-   as the news cards above — .event-rows--home only matches home's list,
-   never the /events/ index's full schedule). The row that's now visually
-   last needs the closing border :last-child would have given the real
-   (hidden) third row. */
-@media (max-width: 619px) {
-  .event-rows--home li:nth-child(n+3) { display: none; }
-  .event-rows--home li:nth-child(2) .event-row { border-bottom: 1px solid var(--color-border); }
-}
-a.event-row:hover { background: var(--color-surface); text-decoration: none; }
-/* Over the shader background (#live-shader-host), an opaque near-black
-   hover fill reads as MORE dark than the vibrant backdrop around it —
-   the opposite of a hover highlight. Lighten instead, and also brighten
-   the title itself — a background wash alone over a busy animated photo
-   is easy to miss; the title colour change is the unambiguous signal. */
-#live-shader-host a.event-row:hover {
-  background: rgba(242, 239, 230, 0.3);
-}
-#live-shader-host a.event-row:hover .event-row__title { color: var(--color-primary); }
-.event-row__date {
-  font-family: var(--font-heading);
-  font-weight: 500;
-  font-size: var(--text-2xl);
-  color: var(--color-primary);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.event-row__date small {
+.calendar-embed iframe,
+.calendar-embed table {
   display: block;
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-text-light);
-  margin-top: var(--space-1);
+  width: 100% !important;
+  height: min(48rem, 80vh) !important;
+  border: 0 !important;
 }
-.event-row__title {
-  font-family: var(--font-heading);
-  font-weight: 500;
-  font-size: var(--text-xl);
-  color: var(--color-text);
-  margin: 0 0 var(--space-1);
-}
-.event-row__meta {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  margin: 0;
-}
-.event-row__go {
-  /* The arrow glyph's own ink overshoots its layout box (font metrics),
-     and the hover state below translates it another 4px right — without
-     this buffer the arrowhead crosses the row's right edge entirely on
-     hover (visible as a hard cut through the glyph over the shader bg). */
-  padding-right: 0.6em;
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-text-light);
-  transition: color var(--t-fast), transform var(--t-fast) var(--ease-out);
-}
-a.event-row:hover .event-row__go { color: var(--color-primary); transform: translateX(4px); }
-@media (max-width: 640px) {
-  .event-row { grid-template-columns: 4.5rem 1fr; }
-  .event-row__go { display: none; }
-}
+
 
 /* ---------- Listen / Music (kept on the site's night-gallery dark) ----------
    2026-07-27: this used to be the one ivory "inverse" section; the client asked

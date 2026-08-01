@@ -303,14 +303,15 @@
       </div>
     </a>
 
-    <a href="{% url 'admin:events_event_changelist' %}" class="mt-card mt-card-third">
+    <!-- Live schedule is a Google Calendar embed now — editing it means editing
+         the Calendar link/embed code on Site Settings, not the old Event model. -->
+    <a href="{% url 'admin:core_sitesettings_changelist' %}" class="mt-card mt-card-third">
       <div class="mt-card-top">
         <div>
-          <p class="mt-card-kicker">Events</p>
-          <h2 class="mt-card-title">Events calendar</h2>
-          <p class="mt-card-desc">Upcoming shows — date, time, venue, and ticket link.</p>
+          <p class="mt-card-kicker">Live</p>
+          <h2 class="mt-card-title">Google Calendar</h2>
+          <p class="mt-card-desc">Set the calendar link or embed code shown on the Live page.</p>
         </div>
-        <div class="mt-card-count">{{ stats.events|default:"0" }}</div>
       </div>
       <div class="mt-card-footer">
         <span class="mt-open-text">Open</span>

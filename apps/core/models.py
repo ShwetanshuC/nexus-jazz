@@ -11,6 +11,23 @@ class SiteSettings(models.Model):
     address = models.TextField(blank=True)
     hours = models.TextField(blank=True)
     map_embed_url = models.URLField(blank=True)
+    calendar_url = models.URLField(
+        blank=True,
+        help_text=(
+            "Google Calendar's own “Public URL to this calendar” (Settings and "
+            "sharing → Integrate calendar), or just the calendar ID "
+            "(name@group.calendar.google.com) — either works. Ignored if an embed code "
+            "is set below."
+        ),
+    )
+    calendar_embed_code = models.TextField(
+        blank=True,
+        help_text=(
+            "Optional: paste Google Calendar's full <iframe> embed code (Settings and "
+            "sharing → Integrate calendar → Embed code) for full control over size "
+            "and view — used instead of the URL above when set."
+        ),
+    )
     facebook_url = models.URLField(blank=True)
     instagram_url = models.URLField(blank=True)
     youtube_url = models.URLField(blank=True)
@@ -33,6 +50,22 @@ class SiteSettings(models.Model):
             existing = SiteSettings.objects.first()
             self.pk = existing.pk
         super().save(*args, **kwargs)
+
+    @property
+    def calendar_embed_src(self):
+        """Normalizes whatever was pasted into calendar_url into a real Google
+        Calendar embed src — the field accepts either the ready-made embed URL
+        or a bare calendar ID, same "accept a few common paste formats"
+        approach as gallery.AudioEmbed.embed_url."""
+        url = (self.calendar_url or "").strip()
+        if not url:
+            return ""
+        if "calendar.google.com/calendar/embed" in url:
+            return url
+        if "://" not in url and "@" in url:
+            from urllib.parse import quote
+            return f"https://calendar.google.com/calendar/embed?src={quote(url, safe='')}&ctz=America%2FNew_York"
+        return url
 
 
 class HeroSlide(models.Model):

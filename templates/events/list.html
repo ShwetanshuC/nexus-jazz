@@ -1,46 +1,28 @@
 {% extends "base.html" %}
-{% load assets %}
 
 {% block title %}Live Dates for the Nexus Jazz Group{% endblock %}
 {% block meta_description %}Upcoming live dates for the Nexus Jazz Group — clubs, festivals, and listening rooms across the Carolinas.{% endblock %}
 
-{% block extra_js %}
-  <script type="module" src="{% static_v 'js/live-shader.js' %}"></script>
-{% endblock %}
-
 {% block content %}
 
-<section class="section-x" id="live-shader-host" aria-labelledby="live-title">
+<section class="section-x page-head" aria-labelledby="live-title">
   <div class="container">
     <div class="ex-header">
       <h1 class="ex-title" id="live-title">Schedule</h1>
+      <p class="ex-lede">Every upcoming date, straight from our Google Calendar — always current.</p>
     </div>
-    <ul class="event-rows">
-      {% for event in upcoming_events %}
-      {% comment %}No .reveal fade-up here (matches home's "On stage next"): this
-      list sits directly over the live WebGL shader canvas, and Safari has known
-      compositing quirks animating opacity/transform over a live canvas layer —
-      the row's text visibly darkens right as it scrolls into view, exactly when
-      the IntersectionObserver would fire the fade. Removing the transition
-      removes the trigger.{% endcomment %}
-      <li>
-        <a class="event-row" href="{% url 'event_detail' event.slug %}">
-          <span class="event-row__date">{{ event.date|date:"d" }}<small>{{ event.date|date:"M Y" }}</small></span>
-          <span>
-            <span class="event-row__title">{{ event.title }}</span><br>
-            <span class="event-row__meta">{{ event.location }}{% if event.start_time %} · {{ event.start_time|time:"g:i A" }}{% endif %}{% if event.price %} · ${{ event.price }}{% endif %}</span>
-          </span>
-          <span class="event-row__go">Details →</span>
-        </a>
-      </li>
-      {% empty %}
-      <li>
-        <p class="empty-note">New dates are being confirmed. Follow the group on
-        {% if site_settings.instagram_url %}<a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% else %}Instagram{% endif %}
-        for the first word, or <a href="{% url 'booking' %}">book the band</a> for your own room.</p>
-      </li>
-      {% endfor %}
-    </ul>
+
+    {% if site_settings.calendar_embed_code %}
+      <div class="calendar-embed">{{ site_settings.calendar_embed_code|safe }}</div>
+    {% elif site_settings.calendar_embed_src %}
+      <div class="calendar-embed">
+        <iframe src="{{ site_settings.calendar_embed_src }}" title="Nexus Jazz Group — live schedule" loading="lazy"></iframe>
+      </div>
+    {% else %}
+      <p class="empty-note">New dates are being confirmed. Follow the group on
+      {% if site_settings.instagram_url %}<a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% else %}Instagram{% endif %}
+      for the first word, or <a href="{% url 'booking' %}">book the band</a> for your own room.</p>
+    {% endif %}
   </div>
 </section>
 
