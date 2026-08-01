@@ -55,11 +55,17 @@
 </head>
 <body class="{% block body_class %}{% endblock %}">
   {% block intro %}{% endblock %}
-  {% include "partials/_nav.html" %}
 
   {% if site_settings.alert_enabled and site_settings.alert_message %}
-  <div class="alert-banner">{{ site_settings.alert_message }}</div>
+  {% comment %}Must sit BEFORE the nav, not after: the hero section pulls
+  itself up by exactly the nav's own height (--nav-h, see .hero-stage in
+  nexus.css) to run full-bleed under the sticky nav. Placing anything
+  between nav and hero in the DOM gets dragged under the hero by that same
+  pull-up instead of pushing it down — this line hid completely.{% endcomment %}
+  <div class="alert-banner" style="background-color: {{ site_settings.alert_color }};">{{ site_settings.alert_message }}</div>
   {% endif %}
+
+  {% include "partials/_nav.html" %}
 
   <main class="main-content" id="main">
     {% if messages %}

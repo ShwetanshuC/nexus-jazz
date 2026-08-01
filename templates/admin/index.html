@@ -331,6 +331,9 @@
         <a href="{% url 'admin:core_sitesettings_changelist' %}" class="mt-sublink">
           Contact &amp; social links
         </a>
+        <a href="{% url 'admin:gallery_galleryphoto_changelist' %}" class="mt-sublink">
+          Homepage photo
+        </a>
         <a href="{% url 'admin:core_faq_changelist' %}" class="mt-sublink">
           Booking page FAQs
         </a>
@@ -338,6 +341,10 @@
           Staff accounts
         </a>
       </div>
+      <p class="mt-card-desc" style="margin-top: 10px;">
+        Homepage photo: the gallery photo titled <strong>“The full lineup”</strong> is used as the
+        homepage's main image (falls back to the first active photo if none has that title).
+      </p>
     </div>
 
   </div>
