@@ -213,20 +213,28 @@
 
 <section class="section-x section-x--hairline" id="live-shader-host" aria-labelledby="live-title">
   <div class="container">
-    <div class="ex-header">
-      <h2 class="ex-title" id="live-title">Live</h2>
-      <p class="ex-lede">Every upcoming date lives on our Google Calendar — always current, one tap away.</p>
+    <div class="ex-header ex-header--tight">
+      <h2 class="ex-title" id="live-title">See Us Live</h2>
     </div>
     <p class="reveal"><a class="btn btn--ghost" href="{% url 'events_index' %}">View Our Live Events</a></p>
   </div>
 </section>
 
 <section class="section-x viewing-room" aria-labelledby="listen-title">
-  <div class="container">
-    <div class="ex-header">
-      <h2 class="ex-title" id="listen-title">Hear where jazz can go</h2>
-      <p class="ex-lede">Recordings, live video, and photographs from the road — collected in one room.</p>
+  <div class="container center">
+    <div class="ex-header ex-header--tight">
+      <h2 class="ex-title" id="listen-title" style="max-width:none;">See Us in Action</h2>
     </div>
+    {% if featured_photo %}
+    <figure class="viewing-room__feature reveal">
+      <span class="viewing-room__tag">Featured</span>
+      <div class="duo">
+        <img src="{{ featured_photo.image.url }}" alt="{{ featured_photo.title|default:'Nexus Jazz Group' }}"
+             style="object-position: center {% widthratio featured_photo.image_focal_y 1 100 %}%"
+             loading="lazy" decoding="async">
+      </div>
+    </figure>
+    {% endif %}
     <p class="reveal"><a class="btn btn--book" href="{% url 'gallery' %}">Enter Music &amp; Media</a></p>
   </div>
 </section>
@@ -235,9 +243,7 @@
   <img class="cta-x__art" src="{% static 'img/booking-lineart.png' %}" alt="" aria-hidden="true">
   <div class="container">
     <p class="ex-kicker">Booking</p>
-    <h2 id="book-title">Put this band in your room</h2>
-    <p>Tell us the date, the place, and the occasion — the set is shaped to fit,
-       from a trio to the full five-piece band.</p>
+    <h2 id="book-title" style="margin-bottom: var(--space-8);">Put this band in your room</h2>
     <a class="btn btn--book" href="{% url 'booking' %}">Book the Band</a>
     <p class="hero-x__reassure">Based in Charlotte · travels across the Carolinas &amp; beyond</p>
   </div>
