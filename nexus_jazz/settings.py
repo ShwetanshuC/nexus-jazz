@@ -168,14 +168,25 @@ STORAGES = {
 
 # S3 media storage — only activates when S3_AWS_STORAGE_BUCKET_NAME is set
 # (the Lightsail container deploy). Local dev keeps using the filesystem
-# backend above. See AWS_DEPLOY_GUIDE.md.
+# backend above.
 _s3_bucket = os.environ.get("S3_AWS_STORAGE_BUCKET_NAME")
 if _s3_bucket:
     AWS_ACCESS_KEY_ID = os.environ.get("S3_ACCESS_KEY")
     AWS_SECRET_ACCESS_KEY = os.environ.get("S3_SECRET_KEY")
     AWS_STORAGE_BUCKET_NAME = _s3_bucket
     AWS_S3_REGION_NAME = os.environ.get("AWS_REGION", "us-east-1")
-    AWS_QUERYSTRING_AUTH = False
+    # True (signed URLs), not False: bucket-olfmin's object-management IAM
+    # user can read/write objects but is explicitly denied bucket-policy and
+    # public-access-block actions (no admin console access to that AWS
+    # account to fix that the "normal" way — make the bucket public). Signed
+    # query-string auth works against a fully private bucket instead, so
+    # media loads regardless of the bucket's own public-access setting.
+    # Verified directly: `aws s3 presign` against this bucket returns 200
+    # where a plain unsigned URL returns 403. 24h expiry is plenty since
+    # Django regenerates the URL fresh on every page render — nothing caches
+    # a stale link across that window in normal use.
+    AWS_QUERYSTRING_AUTH = True
+    AWS_QUERYSTRING_EXPIRE = 60 * 60 * 24
     AWS_S3_FILE_OVERWRITE = False
     STORAGES["default"] = {"BACKEND": "nexus_jazz.storage.ResizingS3Storage"}
 
