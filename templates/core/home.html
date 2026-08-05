@@ -214,7 +214,7 @@
 <section class="section-x section-x--hairline" id="live-shader-host" aria-labelledby="live-title">
   <div class="container center">
     <div class="ex-header ex-header--tight">
-      <h2 class="ex-title live-title--big" id="live-title" style="max-width:none;">See Us Live</h2>
+      <h2 class="ex-title live-title--big" id="live-title" style="max-width:none;">See Us <span class="text-accent">Live</span></h2>
     </div>
     <p class="reveal"><a class="btn btn--ghost" href="{% url 'events_index' %}">View Our Live Events</a></p>
   </div>
@@ -223,26 +223,43 @@
 <section class="section-x viewing-room" aria-labelledby="listen-title">
   <div class="container center">
     <div class="ex-header ex-header--tight">
-      <h2 class="ex-title" id="listen-title" style="max-width:none;">See Us in Action</h2>
+      <h2 class="ex-title" id="listen-title" style="max-width:none;">See Us in <span class="text-accent">Action</span></h2>
     </div>
     {% if featured_photos or featured_video %}
-    <div class="viewing-room__grid reveal">
-      {% for photo in featured_photos %}
-      <div class="duo viewing-room__tile">
-        <img src="{{ photo.image.url }}" alt="{{ photo.title|default:'Nexus Jazz Group' }}"
-             style="object-position: center {% widthratio photo.image_focal_y 1 100 %}%"
-             loading="lazy" decoding="async">
-      </div>
-      {% endfor %}
-      {% if featured_video %}
-      <a class="video-link viewing-room__tile" href="{{ featured_video.watch_url }}"
-         target="_blank" rel="noopener noreferrer" aria-label="Watch {{ featured_video.title }} on YouTube">
-        <span class="video-link__thumb" style="aspect-ratio:auto; height:100%;">
+    <div class="action-carousel reveal" data-carousel>
+      <div class="action-carousel__stage">
+        {% for photo in featured_photos %}
+        <figure class="action-carousel__slide" data-carousel-slide{% if not forloop.first %} aria-hidden="true"{% endif %}>
+          <img src="{{ photo.image.url }}" alt="{{ photo.title|default:'Nexus Jazz Group' }}"
+               style="object-position: center {% widthratio photo.image_focal_y 1 100 %}%"
+               loading="lazy" decoding="async">
+        </figure>
+        {% endfor %}
+        {% if featured_video %}
+        <a class="action-carousel__slide" data-carousel-slide aria-hidden="true"
+           href="{{ featured_video.watch_url }}" target="_blank" rel="noopener noreferrer"
+           aria-label="Watch {{ featured_video.title }} on YouTube">
           {% if featured_video.thumbnail_url %}<img src="{{ featured_video.thumbnail_url }}" alt="" loading="lazy" decoding="async">{% endif %}
           <span class="video-link__play" aria-hidden="true"></span>
-        </span>
-      </a>
-      {% endif %}
+        </a>
+        {% endif %}
+      </div>
+      <button class="action-carousel__arrow action-carousel__arrow--prev" type="button" data-carousel-prev aria-label="Previous">
+        <span aria-hidden="true">‹</span>
+      </button>
+      <button class="action-carousel__arrow action-carousel__arrow--next" type="button" data-carousel-next aria-label="Next">
+        <span aria-hidden="true">›</span>
+      </button>
+      <div class="action-carousel__dots" role="tablist" aria-label="Featured photos and video">
+        {% for photo in featured_photos %}
+        <button class="action-carousel__dot{% if forloop.first %} is-current{% endif %}" type="button"
+                data-carousel-dot="{{ forloop.counter0 }}" aria-label="Show photo {{ forloop.counter }}"></button>
+        {% endfor %}
+        {% if featured_video %}
+        <button class="action-carousel__dot" type="button"
+                data-carousel-dot="{{ featured_photos|length }}" aria-label="Show video"></button>
+        {% endif %}
+      </div>
     </div>
     {% endif %}
     <p class="reveal"><a class="btn btn--book" href="{% url 'gallery' %}">Enter Music &amp; Media</a></p>

@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.urls import reverse
+from django.urls import reverse, path
 from django.utils.html import format_html
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render, get_object_or_404
 from .models import SiteSettings, HeroSlide, FAQ, SiteVisitCounter
 
 # ---------------------------------------------------------------------------
@@ -25,6 +25,56 @@ class MasterAdminSite(admin.AdminSite):
         except Exception:
             context["site_visit_count"] = 0
         return context
+
+    def get_urls(self):
+        urls = [
+            path("inbox/", self.admin_view(self.inbox_view), name="inbox"),
+            path("inbox/<str:kind>/<int:pk>/toggle-read/", self.admin_view(self.inbox_toggle_read), name="inbox_toggle_read"),
+        ]
+        return urls + super().get_urls()
+
+    def inbox_view(self, request):
+        # Booking and contact inquiries share every field except a couple
+        # (BaseInquiry, apps/inquiries/models.py) — this just interleaves
+        # both querysets into one list instead of making staff check two
+        # separate places (the dashboard "Inbox" card used to link straight
+        # to BookingInquiry only, so ContactInquiry submissions were only
+        # ever visible via a direct URL — the unread COUNT on the dashboard
+        # already combined both, so it looked like inquiries were "missing"
+        # whenever a contact-form one came in).
+        from apps.inquiries.models import ContactInquiry, BookingInquiry
+
+        items = []
+        for obj in ContactInquiry.objects.all():
+            items.append({
+                "kind": "contact", "kind_label": "Contact", "obj": obj,
+                "name": obj.name, "email": obj.email, "submitted_at": obj.submitted_at,
+                "is_read": obj.is_read, "detail": obj.subject or "",
+                "change_url": reverse("admin:inquiries_contactinquiry_change", args=[obj.pk]),
+            })
+        for obj in BookingInquiry.objects.all():
+            items.append({
+                "kind": "booking", "kind_label": "Booking", "obj": obj,
+                "name": obj.name, "email": obj.email, "submitted_at": obj.submitted_at,
+                "is_read": obj.is_read, "detail": obj.venue or obj.get_event_type_display(),
+                "change_url": reverse("admin:inquiries_bookinginquiry_change", args=[obj.pk]),
+            })
+        items.sort(key=lambda i: i["submitted_at"], reverse=True)
+
+        context = {
+            **self.each_context(request),
+            "title": "Inbox",
+            "items": items,
+        }
+        return render(request, "admin/inbox.html", context)
+
+    def inbox_toggle_read(self, request, kind, pk):
+        from apps.inquiries.models import ContactInquiry, BookingInquiry
+        model = ContactInquiry if kind == "contact" else BookingInquiry
+        obj = get_object_or_404(model, pk=pk)
+        obj.is_read = not obj.is_read
+        obj.save(update_fields=["is_read"])
+        return redirect("admin:inbox")
 
 
 # Replace default admin site

@@ -237,13 +237,13 @@
   <!-- Card grid -->
   <div class="mt-grid">
 
-    <!-- Inbox: booking requests from the booking form -->
-    <a href="{% url 'admin:inquiries_bookinginquiry_changelist' %}" class="mt-card mt-card-wide">
+    <!-- Inbox: booking requests AND contact messages together (see MasterAdminSite.inbox_view) -->
+    <a href="{% url 'admin:inbox' %}" class="mt-card mt-card-wide">
       <div class="mt-card-top">
         <div>
           <p class="mt-card-kicker">Inbox</p>
-          <h2 class="mt-card-title">Booking requests</h2>
-          <p class="mt-card-desc">New booking requests from the booking form.</p>
+          <h2 class="mt-card-title">Messages</h2>
+          <p class="mt-card-desc">Booking requests and contact messages, in one place.</p>
         </div>
         <div class="mt-card-count">{{ stats.inbox_unread|default:"0" }}</div>
       </div>
@@ -276,7 +276,7 @@
       </div>
     </div>
 
-    <a href="{% url 'admin:team_teammember_changelist' %}" class="mt-card mt-card-third">
+    <a href="{% url 'admin:team_teammember_changelist' %}" class="mt-card">
       <div class="mt-card-top">
         <div>
           <p class="mt-card-kicker">The Band</p>
@@ -289,7 +289,7 @@
       </div>
     </a>
 
-    <a href="{% url 'admin:blog_blogpost_changelist' %}" class="mt-card mt-card-third">
+    <a href="{% url 'admin:blog_blogpost_changelist' %}" class="mt-card">
       <div class="mt-card-top">
         <div>
           <p class="mt-card-kicker">Blog</p>
@@ -303,36 +303,20 @@
       </div>
     </a>
 
-    <!-- Live schedule is a Google Calendar embed now — editing it means editing
-         the Calendar link/embed code on Site Settings, not the old Event model. -->
-    <a href="{% url 'admin:core_sitesettings_changelist' %}" class="mt-card mt-card-third">
-      <div class="mt-card-top">
-        <div>
-          <p class="mt-card-kicker">Live</p>
-          <h2 class="mt-card-title">Google Calendar</h2>
-          <p class="mt-card-desc">Set the calendar link or embed code shown on the Live page.</p>
-        </div>
-      </div>
-      <div class="mt-card-footer">
-        <span class="mt-open-text">Open</span>
-      </div>
-    </a>
-
-    <!-- Homepage & settings: one entry point, two related sub-links -->
+    <!-- Site Settings covers contact info, socials, the Live page's Google
+         Calendar link, and the alert banner — one destination, one link.
+         (Used to be three separate cards/sublinks all pointing here.) -->
     <div class="mt-card mt-card-wide" style="cursor:default;">
       <div class="mt-card-top">
         <div>
-          <p class="mt-card-kicker">Homepage &amp; Settings</p>
-          <h2 class="mt-card-title">Site-wide content</h2>
-          <p class="mt-card-desc">Contact info, hours, social links, and site alert banner — used across every page.</p>
+          <p class="mt-card-kicker">Settings</p>
+          <h2 class="mt-card-title">Site-wide settings</h2>
+          <p class="mt-card-desc">Contact info, hours, social links, the Live page's calendar, and the site alert banner.</p>
         </div>
       </div>
       <div class="mt-subrow">
         <a href="{% url 'admin:core_sitesettings_changelist' %}" class="mt-sublink">
-          Contact &amp; social links
-        </a>
-        <a href="{% url 'admin:gallery_galleryphoto_changelist' %}" class="mt-sublink">
-          Homepage photo
+          Site Settings
         </a>
         <a href="{% url 'admin:core_faq_changelist' %}" class="mt-sublink">
           Booking page FAQs
@@ -341,10 +325,6 @@
           Staff accounts
         </a>
       </div>
-      <p class="mt-card-desc" style="margin-top: 10px;">
-        Homepage photo: the gallery photo titled <strong>“The full lineup”</strong> is used as the
-        homepage's main image (falls back to the first active photo if none has that title).
-      </p>
     </div>
 
   </div>

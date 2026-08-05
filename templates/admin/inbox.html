@@ -1,0 +1,39 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Inbox — Site Manager{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div class="mt-cms" style="--mt-font-brand:'Fraunces',Georgia,serif; --mt-accent:#C29B52; --mt-bg:#0E0D0B; --mt-panel:#171511; --mt-panel-alt:#1E1B16; --mt-border:#2B2721; --mt-copy:#AFA795; --mt-white:#F2EFE6; font-family:'Jost','Futura',system-ui,sans-serif; display:grid; gap:16px;">
+  <p style="margin:0;">
+    <a href="{% url 'admin:index' %}" style="color:var(--mt-accent); font-weight:600; text-decoration:none; font-size:13px;">&larr; Dashboard</a>
+  </p>
+  <h1 style="margin:0; font-family:var(--mt-font-brand); color:var(--mt-white); font-size:clamp(1.6rem,2.5vw,2.2rem); font-weight:600;">Inbox</h1>
+  <p style="margin:0; color:var(--mt-copy);">Booking requests and contact messages, together — newest first.</p>
+
+  <div style="border:1px solid var(--mt-border); background:var(--mt-panel);">
+    {% for item in items %}
+    <div style="display:flex; align-items:center; gap:16px; padding:16px 20px; {% if not forloop.last %}border-bottom:1px solid var(--mt-border);{% endif %} {% if not item.is_read %}background:rgba(194,155,82,0.06);{% endif %}">
+      <span style="flex:0 0 auto; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:4px 9px; border:1px solid var(--mt-border); color:{% if item.kind == 'booking' %}var(--mt-accent){% else %}#9fb8d8{% endif %};">
+        {{ item.kind_label }}
+      </span>
+      <div style="flex:1 1 auto; min-width:0;">
+        <a href="{{ item.change_url }}" style="color:var(--mt-white); font-weight:600; text-decoration:none; font-size:14px;">{{ item.name }}</a>
+        <span style="color:var(--mt-copy); font-size:13px;"> — {{ item.email }}</span>
+        {% if item.detail %}<div style="color:var(--mt-copy); font-size:13px; margin-top:2px;">{{ item.detail }}</div>{% endif %}
+      </div>
+      <span style="flex:0 0 auto; color:var(--mt-copy); font-size:12px; white-space:nowrap;">{{ item.submitted_at|date:"M j, Y" }}</span>
+      <form method="post" action="{% url 'admin:inbox_toggle_read' item.kind item.obj.pk %}" style="flex:0 0 auto; margin:0;">
+        {% csrf_token %}
+        <button type="submit" style="background:none; border:1px solid var(--mt-border); color:{% if item.is_read %}var(--mt-copy){% else %}var(--mt-accent){% endif %}; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:6px 10px; cursor:pointer;">
+          {% if item.is_read %}Mark unread{% else %}Mark read{% endif %}
+        </button>
+      </form>
+    </div>
+    {% empty %}
+    <p style="padding:24px 20px; margin:0; color:var(--mt-copy);">Nothing yet — booking and contact form submissions will show up here.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
