@@ -187,20 +187,24 @@ body { letter-spacing: 0.012em; }
    two/three-word section title some visual interest without adding a
    whole lede paragraph back. */
 .text-accent { color: var(--color-primary); font-style: italic; }
-/* "Live" gets colour, not italic — a deliberate one-off warm red (not the
+/* "Action" gets colour, not italic — a deliberate one-off warm red (not the
    error red, not brass) called for by the user specifically for this word;
-   Action keeps the brass/italic .text-accent treatment above. */
+   Live keeps the brass/italic .text-accent treatment above. */
 .text-accent--live { color: #C1443A; font-style: normal; }
 
-/* Decorative white music-note line art flanking the "See Us Live" heading —
-   subtle, low-opacity, never competes with the heading itself. */
-#live-shader-host { overflow: hidden; }
+/* Decorative white music-note line art flanking the "See Us in Action"
+   heading, over the viewing room's near-black ground — solid enough to read
+   as line art rather than a faint texture. */
+/* Tighter bottom padding than the shared .section-x default — this section
+   hands off directly into the ivory Booking CTA below it, so the standard
+   spacious S3 rhythm left an oversized black void between the button and the
+   next section's content. Top stays spacious (unchanged). */
+.viewing-room { position: relative; overflow: hidden; padding-bottom: var(--section-y-s1); }
 .live-x__note {
   position: absolute;
   top: 50%;
-  z-index: -1;   /* same background tier as the shader canvas/scrim (see note above) */
   width: clamp(5rem, 9vw, 9rem);
-  opacity: 0.1;
+  opacity: 0.4;
   pointer-events: none;
   transform: translateY(-50%);
 }

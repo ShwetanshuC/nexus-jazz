@@ -217,20 +217,20 @@
 </section>
 
 <section class="section-x section-x--hairline" id="live-shader-host" aria-labelledby="live-title">
-  <img class="live-x__note live-x__note--left" src="{% static 'img/music-notes.svg' %}" alt="" aria-hidden="true">
-  <img class="live-x__note live-x__note--right" src="{% static 'img/music-notes.svg' %}" alt="" aria-hidden="true">
   <div class="container center">
     <div class="ex-header ex-header--tight">
-      <h2 class="ex-title live-title--big" id="live-title" style="max-width:none;">See Us <span class="text-accent--live">Live</span></h2>
+      <h2 class="ex-title live-title--big" id="live-title" style="max-width:none;">See Us <span class="text-accent">Live</span></h2>
     </div>
     <p class="reveal"><a class="btn btn--ghost" href="{% url 'events_index' %}">View Our Live Events</a></p>
   </div>
 </section>
 
 <section class="section-x viewing-room" aria-labelledby="listen-title">
+  <img class="live-x__note live-x__note--left" src="{% static 'img/music-notes.svg' %}" alt="" aria-hidden="true">
+  <img class="live-x__note live-x__note--right" src="{% static 'img/music-notes.svg' %}" alt="" aria-hidden="true">
   <div class="container center">
     <div class="ex-header ex-header--tight">
-      <h2 class="ex-title" id="listen-title" style="max-width:none;">See Us in <span class="text-accent">Action</span></h2>
+      <h2 class="ex-title" id="listen-title" style="max-width:none;">See Us in <span class="text-accent--live">Action</span></h2>
     </div>
     {% if featured_photos or featured_video %}
     <div class="action-carousel reveal" data-carousel>
@@ -278,7 +278,7 @@
   <div class="container">
     <p class="ex-kicker">Booking</p>
     <h2 id="book-title" style="margin-bottom: var(--space-2);">Put this band in your room</h2>
-    <p style="margin: 0 0 var(--space-6); color: color-mix(in srgb, var(--color-inverse-text) 72%, var(--color-inverse-bg));">
+    <p style="margin: 0 auto var(--space-6); color: color-mix(in srgb, var(--color-inverse-text) 72%, var(--color-inverse-bg));">
       Book an experience you'll never forget.
     </p>
     <a class="btn btn--book" href="{% url 'booking' %}">Book the Band</a>
