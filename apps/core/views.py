@@ -27,16 +27,21 @@ def home(request):
         context["about_mobile_photo"] = next(
             (p for p in gp if p.title == "Backstage, before the set"), feature
         )
-        # "See us in action" section: whichever gallery photo is marked
-        # featured in the admin — most recently marked wins if more than one
-        # is checked. None marked = section just shows heading + button.
-        context["featured_photo"] = (
-            GalleryPhoto.objects.filter(is_active=True, is_featured=True).order_by("-id").first()
+        # "See Us in Action" section: whichever gallery photos/video are
+        # marked featured in the admin. None marked = section just shows
+        # heading + button, no broken layout.
+        context["featured_photos"] = list(
+            GalleryPhoto.objects.filter(is_active=True, is_featured=True).order_by("sort_order")[:5]
+        )
+        from apps.gallery.models import GalleryVideo
+        context["featured_video"] = (
+            GalleryVideo.objects.filter(is_active=True, is_featured=True).order_by("sort_order").first()
         )
     except Exception:
         context["hero_feature"] = None
         context["about_mobile_photo"] = None
-        context["featured_photo"] = None
+        context["featured_photos"] = []
+        context["featured_video"] = None
     try:
         context["featured_brands"] = list(FeaturedBrand.objects.filter(is_active=True).order_by("sort_order"))
     except Exception:

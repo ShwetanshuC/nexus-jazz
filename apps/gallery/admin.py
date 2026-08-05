@@ -26,8 +26,8 @@ class GalleryPhotoAdmin(admin.ModelAdmin):
 
 @admin.register(GalleryVideo)
 class GalleryVideoAdmin(admin.ModelAdmin):
-    list_display = ["sort_order", "title", "video_url", "is_active"]
-    list_editable = ["sort_order", "is_active"]
+    list_display = ["sort_order", "title", "video_url", "is_active", "is_featured"]
+    list_editable = ["sort_order", "is_active", "is_featured"]
     list_display_links = ["title"]
     ordering = ["sort_order"]
 

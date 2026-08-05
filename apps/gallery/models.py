@@ -12,7 +12,7 @@ class GalleryPhoto(models.Model):
     is_active = models.BooleanField(default=True)
     is_featured = models.BooleanField(
         default=False,
-        help_text="Shown in the home page's \"See us in action\" section. Only one photo should be featured at a time — the most recently marked one wins if more than one is checked.",
+        help_text="Shown in the home page's \"See Us in Action\" section. Check as many as you like.",
     )
 
     class Meta:
@@ -31,6 +31,10 @@ class GalleryVideo(models.Model):
     caption = models.TextField(blank=True)
     sort_order = models.PositiveSmallIntegerField(default=0)
     is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Shown in the home page's \"See Us in Action\" section — the first one checked (by sort order) wins, since that section shows one video.",
+    )
 
     class Meta:
         ordering = ["sort_order"]
