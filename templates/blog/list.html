@@ -45,6 +45,24 @@
       </p>
     </div>
   </section>
+
+  {% if archived_posts %}
+  <section class="section-x section-x--hairline" aria-label="Blog archive">
+    <div class="container">
+      <div class="news-retro__head">
+        <p class="news-retro__kicker">Archive</p>
+        <h2 class="news-retro__heading" style="font-size:var(--text-2xl);">Older Posts</h2>
+      </div>
+      <div class="post-cards post-cards--retro">
+        {% for post in archived_posts %}
+        <div class="reveal {% cycle '' 'reveal-d1' 'reveal-d2' %}">
+          {% include "blog/_post_card.html" with post=post %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
 </div>
 
 {% endblock %}

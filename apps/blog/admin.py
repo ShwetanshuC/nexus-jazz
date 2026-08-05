@@ -17,8 +17,9 @@ class BlogTagAdmin(admin.ModelAdmin):
 
 @admin.register(BlogPost)
 class BlogPostAdmin(admin.ModelAdmin):
-    list_display = ["title", "category", "author", "is_published", "published_at", "reading_time"]
-    list_filter = ["is_published", "category", "tags"]
+    list_display = ["title", "category", "author", "is_published", "is_archived", "published_at", "reading_time"]
+    list_editable = ["is_archived"]
+    list_filter = ["is_published", "is_archived", "category", "tags"]
     search_fields = ["title", "body", "excerpt"]
     prepopulated_fields = {"slug": ("title",)}
     date_hierarchy = "published_at"
@@ -26,7 +27,7 @@ class BlogPostAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("title", "slug", "author", "category", "tags")}),
         ("Content", {"fields": ("featured_image", "image_focal_y", "excerpt", "body")}),
-        ("Publishing", {"fields": ("is_published", "published_at")}),
+        ("Publishing", {"fields": ("is_published", "is_archived", "published_at")}),
         ("SEO", {"fields": ("meta_description", "meta_keywords"), "classes": ("collapse",)}),
     )
     readonly_fields = ["reading_time"]

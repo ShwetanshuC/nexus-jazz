@@ -94,13 +94,18 @@
     {% if hero_feature %}
     {% comment %}full-bleed hero crop is fixed in CSS (object-position) so every
     face clears the top — decoupled from the model focal, which is tuned for the
-    gallery's square crop. Mobile swaps in the About section's portrait photo
-    (static/img/band-lineup.jpg) instead — a phone viewport is much taller than
-    it is wide, so the portrait crop needs far less cropping to cover it than
-    this landscape shot does; the About section gets this photo's spot in
-    return (see below). Desktop is untouched.{% endcomment %}
+    gallery's square crop. Mobile source is whichever GalleryPhoto is checked
+    is_hero_mobile in the admin (a phone viewport is much taller than it is
+    wide, so a photo picked for that crop covers it far better than the
+    desktop landscape shot). Falls back to the About section's portrait photo
+    (static/img/band-lineup.jpg) if nothing's been picked yet. Desktop uses
+    is_hero.{% endcomment %}
     <picture>
+      {% if hero_feature_mobile %}
+      <source media="(max-width: 820px)" srcset="{{ hero_feature_mobile.image.url }}">
+      {% else %}
       <source media="(max-width: 820px)" srcset="{% static 'img/band-lineup.jpg' %}">
+      {% endif %}
       <img src="{{ hero_feature.image.url }}" alt="Keenan Harmon and the Nexus Jazz Group"
            class="hero-stage__img" fetchpriority="high" decoding="async">
     </picture>
@@ -212,9 +217,11 @@
 </section>
 
 <section class="section-x section-x--hairline" id="live-shader-host" aria-labelledby="live-title">
+  <img class="live-x__note live-x__note--left" src="{% static 'img/music-notes.svg' %}" alt="" aria-hidden="true">
+  <img class="live-x__note live-x__note--right" src="{% static 'img/music-notes.svg' %}" alt="" aria-hidden="true">
   <div class="container center">
     <div class="ex-header ex-header--tight">
-      <h2 class="ex-title live-title--big" id="live-title" style="max-width:none;">See Us <span class="text-accent">Live</span></h2>
+      <h2 class="ex-title live-title--big" id="live-title" style="max-width:none;">See Us <span class="text-accent--live">Live</span></h2>
     </div>
     <p class="reveal"><a class="btn btn--ghost" href="{% url 'events_index' %}">View Our Live Events</a></p>
   </div>

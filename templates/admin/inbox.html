@@ -9,31 +9,70 @@
   <p style="margin:0;">
     <a href="{% url 'admin:index' %}" style="color:var(--mt-accent); font-weight:600; text-decoration:none; font-size:13px;">&larr; Dashboard</a>
   </p>
-  <h1 style="margin:0; font-family:var(--mt-font-brand); color:var(--mt-white); font-size:clamp(1.6rem,2.5vw,2.2rem); font-weight:600;">Inbox</h1>
-  <p style="margin:0; color:var(--mt-copy);">Booking requests and contact messages, together — newest first.</p>
 
-  <div style="border:1px solid var(--mt-border); background:var(--mt-panel);">
-    {% for item in items %}
-    <div style="display:flex; align-items:center; gap:16px; padding:16px 20px; {% if not forloop.last %}border-bottom:1px solid var(--mt-border);{% endif %} {% if not item.is_read %}background:rgba(194,155,82,0.06);{% endif %}">
-      <span style="flex:0 0 auto; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:4px 9px; border:1px solid var(--mt-border); color:{% if item.kind == 'booking' %}var(--mt-accent){% else %}#9fb8d8{% endif %};">
-        {{ item.kind_label }}
-      </span>
-      <div style="flex:1 1 auto; min-width:0;">
-        <a href="{{ item.change_url }}" style="color:var(--mt-white); font-weight:600; text-decoration:none; font-size:14px;">{{ item.name }}</a>
-        <span style="color:var(--mt-copy); font-size:13px;"> — {{ item.email }}</span>
-        {% if item.detail %}<div style="color:var(--mt-copy); font-size:13px; margin-top:2px;">{{ item.detail }}</div>{% endif %}
-      </div>
-      <span style="flex:0 0 auto; color:var(--mt-copy); font-size:12px; white-space:nowrap;">{{ item.submitted_at|date:"M j, Y" }}</span>
-      <form method="post" action="{% url 'admin:inbox_toggle_read' item.kind item.obj.pk %}" style="flex:0 0 auto; margin:0;">
-        {% csrf_token %}
-        <button type="submit" style="background:none; border:1px solid var(--mt-border); color:{% if item.is_read %}var(--mt-copy){% else %}var(--mt-accent){% endif %}; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:6px 10px; cursor:pointer;">
-          {% if item.is_read %}Mark unread{% else %}Mark read{% endif %}
-        </button>
-      </form>
+  <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+    <div>
+      <h1 style="margin:0; font-family:var(--mt-font-brand); color:var(--mt-white); font-size:clamp(1.6rem,2.5vw,2.2rem); font-weight:600;">Inbox</h1>
+      <p style="margin:4px 0 0; color:var(--mt-copy);">Booking requests and contact messages, together — newest first.</p>
     </div>
-    {% empty %}
-    <p style="padding:24px 20px; margin:0; color:var(--mt-copy);">Nothing yet — booking and contact form submissions will show up here.</p>
-    {% endfor %}
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <a href="{% url 'admin:inbox_archive' %}" style="color:var(--mt-accent); font-weight:600; text-decoration:none; font-size:13px; border:1px solid var(--mt-border); padding:8px 12px;">View full archive</a>
+      {% if items %}
+      <form method="post" style="margin:0;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="archive_all">
+        <button type="submit" style="background:none; border:1px solid var(--mt-border); color:var(--mt-accent); font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:8px 12px; cursor:pointer;">Archive all unread</button>
+      </form>
+      <form method="post" style="margin:0;" onsubmit="return confirm('Delete all {{ unread_count }} unread message(s)? This cannot be undone.');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_all">
+        <button type="submit" style="background:none; border:1px solid var(--mt-border); color:#e07a6f; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:8px 12px; cursor:pointer;">Delete all unread</button>
+      </form>
+      {% endif %}
+    </div>
   </div>
+
+  <form method="post" id="inbox-bulk-form">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="delete_selected">
+    <div style="border:1px solid var(--mt-border); background:var(--mt-panel);">
+      {% for item in items %}
+      <div style="display:flex; align-items:center; gap:16px; padding:16px 20px; {% if not forloop.last %}border-bottom:1px solid var(--mt-border);{% endif %} background:rgba(194,155,82,0.06);">
+        <input type="checkbox" name="selected_items" value="{{ item.kind }}:{{ item.obj.pk }}" style="flex:0 0 auto; width:16px; height:16px; accent-color:var(--mt-accent);">
+        <span style="flex:0 0 auto; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:4px 9px; border:1px solid var(--mt-border); color:{% if item.kind == 'booking' %}var(--mt-accent){% else %}#9fb8d8{% endif %};">
+          {{ item.kind_label }}
+        </span>
+        <div style="flex:1 1 auto; min-width:0;">
+          <a href="{{ item.change_url }}" style="color:var(--mt-white); font-weight:600; text-decoration:none; font-size:14px;">{{ item.name }}</a>
+          <span style="color:var(--mt-copy); font-size:13px;"> — {{ item.email }}</span>
+          {% if item.detail %}<div style="color:var(--mt-copy); font-size:13px; margin-top:2px;">{{ item.detail }}</div>{% endif %}
+        </div>
+        <span style="flex:0 0 auto; color:var(--mt-copy); font-size:12px; white-space:nowrap;">{{ item.submitted_at|date:"M j, Y" }}</span>
+        <button type="submit" formaction="{% url 'admin:inbox' %}" name="action" value="archive" formnovalidate
+                onclick="this.form.pk.value='{{ item.obj.pk }}'; this.form.kind.value='{{ item.kind }}';"
+                style="flex:0 0 auto; background:none; border:1px solid var(--mt-border); color:var(--mt-accent); font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:6px 10px; cursor:pointer;">
+          Archive
+        </button>
+        <button type="submit" formaction="{% url 'admin:inbox' %}" name="action" value="delete" formnovalidate
+                onclick="this.form.pk.value='{{ item.obj.pk }}'; this.form.kind.value='{{ item.kind }}'; return confirm('Delete this message? This cannot be undone.');"
+                style="flex:0 0 auto; background:none; border:1px solid var(--mt-border); color:#e07a6f; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:6px 10px; cursor:pointer;">
+          Delete
+        </button>
+      </div>
+      {% empty %}
+      <p style="padding:24px 20px; margin:0; color:var(--mt-copy);">Nothing yet — booking and contact form submissions will show up here.</p>
+      {% endfor %}
+    </div>
+    {% if items %}
+    <input type="hidden" name="pk" value="">
+    <input type="hidden" name="kind" value="">
+    <p style="margin:12px 0 0;">
+      <button type="submit" formaction="{% url 'admin:inbox' %}" onclick="return confirm('Delete the selected message(s)? This cannot be undone.');"
+              style="background:none; border:1px solid var(--mt-border); color:#e07a6f; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:8px 12px; cursor:pointer;">
+        Delete selected
+      </button>
+    </p>
+    {% endif %}
+  </form>
 </div>
 {% endblock %}

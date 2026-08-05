@@ -4,7 +4,7 @@ from .models import BlogPost, BlogCategory, BlogTag
 
 
 def index(request):
-    posts = BlogPost.objects.filter(is_published=True).select_related("author", "category")
+    posts = BlogPost.objects.filter(is_published=True, is_archived=False).select_related("author", "category")
 
     category_slug = request.GET.get("category", "")
     tag_slug = request.GET.get("tag", "")
@@ -17,9 +17,15 @@ def index(request):
     paginator = Paginator(posts, 10)
     page_obj = paginator.get_page(request.GET.get("page"))
 
+    # Archived posts (admin-marked, see BlogPost.is_archived) sit in their own
+    # list at the foot of the page — filters/pagination only apply to the
+    # main feed above, so this stays unfiltered and unpaginated.
+    archived_posts = BlogPost.objects.filter(is_published=True, is_archived=True).select_related("author", "category")
+
     context = {
         "page_obj": page_obj,
         "posts": page_obj,
+        "archived_posts": archived_posts,
         "categories": BlogCategory.objects.filter(is_active=True),
         "current_category": category_slug,
         "current_tag": tag_slug,

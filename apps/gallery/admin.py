@@ -5,8 +5,8 @@ from .models import GalleryPhoto, GalleryVideo, AudioEmbed
 
 @admin.register(GalleryPhoto)
 class GalleryPhotoAdmin(admin.ModelAdmin):
-    list_display = ["sort_order", "title_display", "photo_thumb", "is_active", "is_featured"]
-    list_editable = ["sort_order", "is_active", "is_featured"]
+    list_display = ["sort_order", "title_display", "photo_thumb", "is_active", "is_featured", "is_hero", "is_hero_mobile"]
+    list_editable = ["sort_order", "is_active", "is_featured", "is_hero", "is_hero_mobile"]
     list_display_links = ["title_display"]
     ordering = ["sort_order"]
 

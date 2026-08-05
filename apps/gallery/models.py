@@ -14,6 +14,14 @@ class GalleryPhoto(models.Model):
         default=False,
         help_text="Shown in the home page's \"See Us in Action\" section. Check as many as you like.",
     )
+    is_hero = models.BooleanField(
+        default=False,
+        help_text="Use as the home page's main hero photo (desktop). Check one — the first by sort order wins.",
+    )
+    is_hero_mobile = models.BooleanField(
+        default=False,
+        help_text="Use as the home page's hero photo on phones. Check one — the first by sort order wins. Falls back to the desktop hero pick if none is checked.",
+    )
 
     class Meta:
         ordering = ["sort_order"]

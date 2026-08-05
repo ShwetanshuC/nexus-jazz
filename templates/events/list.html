@@ -16,9 +16,7 @@
       <h1 class="ex-title" id="live-title">Schedule</h1>
     </div>
 
-    {% if site_settings.calendar_embed_code %}
-      <div class="calendar-embed">{{ site_settings.calendar_embed_code|safe }}</div>
-    {% elif site_settings.calendar_embed_src %}
+    {% if site_settings.calendar_embed_src %}
       <div class="calendar-embed">
         <iframe src="{{ site_settings.calendar_embed_src }}" title="Nexus Jazz Group — live schedule" loading="lazy"></iframe>
       </div>

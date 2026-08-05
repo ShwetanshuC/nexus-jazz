@@ -10,22 +10,12 @@ class SiteSettings(models.Model):
     email = models.EmailField(blank=True)
     address = models.TextField(blank=True)
     hours = models.TextField(blank=True)
-    map_embed_url = models.URLField(blank=True)
     calendar_url = models.URLField(
         blank=True,
         help_text=(
             "Google Calendar's own “Public URL to this calendar” (Settings and "
             "sharing → Integrate calendar), or just the calendar ID "
-            "(name@group.calendar.google.com) — either works. Ignored if an embed code "
-            "is set below."
-        ),
-    )
-    calendar_embed_code = models.TextField(
-        blank=True,
-        help_text=(
-            "Optional: paste Google Calendar's full <iframe> embed code (Settings and "
-            "sharing → Integrate calendar → Embed code) for full control over size "
-            "and view — used instead of the URL above when set."
+            "(name@group.calendar.google.com) — either works."
         ),
     )
     facebook_url = models.URLField(blank=True)

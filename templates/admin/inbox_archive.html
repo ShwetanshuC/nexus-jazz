@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Inbox Archive — Site Manager{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div class="mt-cms" style="--mt-font-brand:'Fraunces',Georgia,serif; --mt-accent:#C29B52; --mt-bg:#0E0D0B; --mt-panel:#171511; --mt-panel-alt:#1E1B16; --mt-border:#2B2721; --mt-copy:#AFA795; --mt-white:#F2EFE6; font-family:'Jost','Futura',system-ui,sans-serif; display:grid; gap:16px;">
+  <p style="margin:0;">
+    <a href="{% url 'admin:inbox' %}" style="color:var(--mt-accent); font-weight:600; text-decoration:none; font-size:13px;">&larr; Inbox</a>
+  </p>
+
+  <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+    <div>
+      <h1 style="margin:0; font-family:var(--mt-font-brand); color:var(--mt-white); font-size:clamp(1.6rem,2.5vw,2.2rem); font-weight:600;">Archive</h1>
+      <p style="margin:4px 0 0; color:var(--mt-copy);">Archived booking and contact messages — newest first.</p>
+    </div>
+    {% if items %}
+    <a href="{% url 'admin:inbox_archive_csv' %}" style="color:var(--mt-accent); font-weight:600; text-decoration:none; font-size:13px; border:1px solid var(--mt-border); padding:8px 12px;">Export as CSV</a>
+    {% endif %}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="delete_selected">
+    <div style="border:1px solid var(--mt-border); background:var(--mt-panel);">
+      {% for item in items %}
+      <div style="display:flex; align-items:center; gap:16px; padding:16px 20px; {% if not forloop.last %}border-bottom:1px solid var(--mt-border);{% endif %}">
+        <input type="checkbox" name="selected_items" value="{{ item.kind }}:{{ item.obj.pk }}" style="flex:0 0 auto; width:16px; height:16px; accent-color:var(--mt-accent);">
+        <span style="flex:0 0 auto; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:4px 9px; border:1px solid var(--mt-border); color:{% if item.kind == 'booking' %}var(--mt-accent){% else %}#9fb8d8{% endif %};">
+          {{ item.kind_label }}
+        </span>
+        <div style="flex:1 1 auto; min-width:0;">
+          <a href="{{ item.change_url }}" style="color:var(--mt-white); font-weight:600; text-decoration:none; font-size:14px;">{{ item.name }}</a>
+          <span style="color:var(--mt-copy); font-size:13px;"> — {{ item.email }}</span>
+          {% if item.detail %}<div style="color:var(--mt-copy); font-size:13px; margin-top:2px;">{{ item.detail }}</div>{% endif %}
+        </div>
+        <span style="flex:0 0 auto; color:var(--mt-copy); font-size:12px; white-space:nowrap;">{{ item.submitted_at|date:"M j, Y" }}</span>
+      </div>
+      {% empty %}
+      <p style="padding:24px 20px; margin:0; color:var(--mt-copy);">Nothing archived yet.</p>
+      {% endfor %}
+    </div>
+    {% if items %}
+    <p style="margin:12px 0 0;">
+      <button type="submit" onclick="return confirm('Delete the selected archived message(s)? This cannot be undone.');"
+              style="background:none; border:1px solid var(--mt-border); color:#e07a6f; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:8px 12px; cursor:pointer;">
+        Delete selected
+      </button>
+    </p>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

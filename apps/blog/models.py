@@ -65,6 +65,11 @@ class BlogPost(models.Model):
     excerpt = models.CharField(max_length=300, blank=True)
     body = models.TextField()
     is_published = models.BooleanField(default=False)
+    is_archived = models.BooleanField(
+        default=False,
+        help_text="Move this post out of the main Blog feed into the Archive list at the "
+                   "bottom of the page — still published and linkable, just out of the way.",
+    )
     published_at = models.DateTimeField(null=True, blank=True)
     meta_description = models.CharField(max_length=160, blank=True)
     meta_keywords = models.CharField(max_length=255, blank=True)

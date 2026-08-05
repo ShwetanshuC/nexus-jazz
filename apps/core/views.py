@@ -9,16 +9,18 @@ def home(request):
         context["hero_slides"] = list(HeroSlide.objects.filter(is_active=True).order_by("sort_order"))
     except Exception:
         context["hero_slides"] = []
-    # Hero picture: one full-bleed portrait (the formal band lineup, gallery
-    # title "The full lineup") that fades up on the last announced line.
-    # Falls back to the first active photo, then to the HeroSlide image.
+    # Hero picture: one full-bleed portrait that fades up on the last
+    # announced line. Admin picks it via GalleryPhoto.is_hero (desktop) /
+    # is_hero_mobile (phones) — falls back to the first active photo, then
+    # to the HeroSlide image.
     try:
         from apps.gallery.models import GalleryPhoto
         gp = list(GalleryPhoto.objects.filter(is_active=True).order_by("sort_order"))
-        feature = next((p for p in gp if p.title == "The full lineup"), None)
+        feature = next((p for p in gp if p.is_hero), None)
         if feature is None and gp:
             feature = gp[0]
         context["hero_feature"] = feature
+        context["hero_feature_mobile"] = next((p for p in gp if p.is_hero_mobile), None)
         # About section's mobile-only photo swap (see home.html): needs a shot
         # that's already close to the card's narrow portrait aspect, so the
         # crop doesn't lose band members off the sides the way the wide
@@ -39,6 +41,7 @@ def home(request):
         )
     except Exception:
         context["hero_feature"] = None
+        context["hero_feature_mobile"] = None
         context["about_mobile_photo"] = None
         context["featured_photos"] = []
         context["featured_video"] = None
