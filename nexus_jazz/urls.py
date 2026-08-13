@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, re_path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -6,10 +7,18 @@ from django.http import HttpResponse
 from django.views.static import serve as _serve_static
 
 from apps.core.views import robots_txt
+from apps.core.sitemaps import StaticViewSitemap, BlogPostSitemap, EventSitemap
+
+sitemaps = {
+    "static": StaticViewSitemap,
+    "blog": BlogPostSitemap,
+    "events": EventSitemap,
+}
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("robots.txt", robots_txt),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
     path("", include("apps.core.urls")),
     path("blog/", include("apps.blog.urls")),
     path("media/", include("apps.gallery.urls")),

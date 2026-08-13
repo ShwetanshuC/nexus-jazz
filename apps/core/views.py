@@ -73,7 +73,8 @@ def robots_txt(request):
     # the Disallow; the X-Robots-Tag header on every /admin/ response
     # (AdminNoindexMiddleware) additionally tells any bot NOT to index a page
     # it does fetch, which is the belt to this robots.txt suspenders.
-    lines = ["User-agent: *", "Disallow: /admin/"]
+    sitemap_url = f"{request.scheme}://{request.get_host()}/sitemap.xml"
+    lines = ["User-agent: *", "Disallow: /admin/", "", f"Sitemap: {sitemap_url}"]
     return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
 
 
