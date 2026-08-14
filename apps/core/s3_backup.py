@@ -1,5 +1,6 @@
 import os
 import shutil
+import traceback
 import boto3
 import logging
 from botocore.exceptions import ClientError
@@ -56,6 +57,7 @@ def backup_db():
         logger.info(f"[s3_backup] Backup succeeded ({size_kb} KB).")
     except Exception as e:
         print(f"[s3_backup] ERROR: Backup failed: {e}")
+        traceback.print_exc()
         logger.error(f"[s3_backup] Backup failed: {e}")
 
 
@@ -95,6 +97,7 @@ def restore_db():
         return False
     except Exception as e:
         print(f"[s3_backup] ERROR: Unexpected restore error: {e}")
+        traceback.print_exc()
         logger.error(f"[s3_backup] Restore error: {e}")
         if os.path.exists(temp_path):
             os.remove(temp_path)

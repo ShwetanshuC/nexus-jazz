@@ -32,5 +32,13 @@ class CoreConfig(AppConfig):
                 except Exception as e:
                     logger.error(f"[core] Failed to schedule S3 backup: {e}")
 
-        post_save.connect(backup_on_change)
-        post_delete.connect(backup_on_change)
+        # weak=False: backup_on_change is a local closure with no other
+        # strong reference. Django's default weak-reference connect() lets
+        # the GC collect it right after ready() returns, silently
+        # disconnecting the signal with no error — which is why the S3
+        # backup never fired across 13 production deployments despite the
+        # trigger code being correct (found 2026-08-14 while investigating
+        # a data-loss incident: no backups/db.sqlite3 object had ever been
+        # written to S3).
+        post_save.connect(backup_on_change, weak=False)
+        post_delete.connect(backup_on_change, weak=False)
