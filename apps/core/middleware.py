@@ -19,7 +19,7 @@ VISIT_EXCLUDE_PREFIXES = (
 
 THROTTLED_PATHS: dict[str, tuple[int, int]] = {
     "/inquiries/contact/": (5, 60),
-    "/inquiries/quote/": (3, 60),
+    "/inquiries/booking/": (3, 60),
     "/events/subscribe/": (5, 60),
 }
 

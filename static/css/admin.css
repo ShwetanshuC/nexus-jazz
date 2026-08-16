@@ -2261,3 +2261,15 @@ body.login #header #branding h1 a:link {
   border-top: none !important;
   padding-top: 0 !important;
 }
+
+/* Hide the "Home > Section > Page" breadcrumb bar everywhere. The
+   {% block breadcrumbs %} override in admin/base_site.html only reaches
+   pages that extend it directly (our custom index/app_index/inbox
+   templates) — Django's own change_list.html, change_form.html, and
+   delete_confirmation.html redefine that block themselves (more derived
+   in the template chain, so they win over the base_site.html override).
+   CSS is the one rule that reaches every admin page regardless of which
+   template defines breadcrumbs. */
+div.breadcrumbs {
+  display: none !important;
+}

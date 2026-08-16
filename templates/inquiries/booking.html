@@ -22,7 +22,10 @@
   <div class="container"><div class="prose-col center-col">
     <form method="post" novalidate>
       {% csrf_token %}
-      {{ form.website }}
+      <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+        <label for="{{ form.website.id_for_label }}">Leave this field empty</label>
+        {{ form.website }}
+      </div>
       {% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}
 
       <div class="form-group">

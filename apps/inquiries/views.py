@@ -7,7 +7,10 @@ def contact(request):
     if request.method == "POST":
         form = ContactInquiryForm(request.POST)
         if form.is_valid():
-            form.save()
+            # Honeypot tripped: pretend it worked (no signal to the bot
+            # that it was caught) but never touch the database.
+            if not form.is_spam_submission():
+                form.save()
             messages.success(request, "Thank you! Your message has been sent. We will be in touch soon.")
             return redirect("inquiry_thank_you")
     else:
@@ -21,7 +24,8 @@ def booking(request):
     if request.method == "POST":
         form = BookingInquiryForm(request.POST)
         if form.is_valid():
-            form.save()
+            if not form.is_spam_submission():
+                form.save()
             messages.success(request, "Thank you! Your booking request has been received. We will be in touch soon.")
             return redirect("inquiry_thank_you")
     else:
