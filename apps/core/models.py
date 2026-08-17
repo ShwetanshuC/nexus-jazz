@@ -78,40 +78,6 @@ class HeroSlide(models.Model):
         return self.title
 
 
-class FeaturedBrand(models.Model):
-    name = models.CharField(max_length=120)
-    logo = models.ImageField(upload_to="site/brands/")
-    logo_color = ColorField(default="#000000")
-    website_url = models.URLField(blank=True)
-    sort_order = models.PositiveSmallIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["sort_order"]
-        verbose_name = "Featured Brand"
-        verbose_name_plural = "Featured Brands"
-
-    def __str__(self):
-        return self.name
-
-
-class HomeSectionCard(models.Model):
-    title = models.CharField(max_length=200)
-    subtitle = models.CharField(max_length=300, blank=True)
-    image = models.ImageField(upload_to="site/cards/", blank=True, null=True)
-    link_url = models.CharField(max_length=255)
-    sort_order = models.PositiveSmallIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["sort_order"]
-        verbose_name = "Home Section Card"
-        verbose_name_plural = "Home Section Cards"
-
-    def __str__(self):
-        return self.title
-
-
 class FAQ(models.Model):
     question = models.CharField(max_length=255)
     answer = models.TextField()

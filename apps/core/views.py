@@ -3,7 +3,7 @@ from django.http import HttpResponse
 
 
 def home(request):
-    from .models import HeroSlide, FeaturedBrand, HomeSectionCard, FAQ
+    from .models import HeroSlide
     context = {}
     try:
         context["hero_slides"] = list(HeroSlide.objects.filter(is_active=True).order_by("sort_order"))
@@ -45,14 +45,6 @@ def home(request):
         context["about_mobile_photo"] = None
         context["featured_photos"] = []
         context["featured_video"] = None
-    try:
-        context["featured_brands"] = list(FeaturedBrand.objects.filter(is_active=True).order_by("sort_order"))
-    except Exception:
-        context["featured_brands"] = []
-    try:
-        context["section_cards"] = list(HomeSectionCard.objects.filter(is_active=True).order_by("sort_order"))
-    except Exception:
-        context["section_cards"] = []
     # Featured blog posts: the six most recent published posts, shown as covers.
     try:
         from apps.blog.models import BlogPost

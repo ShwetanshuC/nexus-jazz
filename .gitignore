@@ -10,3 +10,6 @@ staticfiles/
 /tmp/
 *.sqlite3-journal
 .claude/
+
+# contains live credentials — never commit
+HANDOVER.md
